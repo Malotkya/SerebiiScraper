@@ -106,6 +106,7 @@ export class RawData extends Map<string, string> {
      * @returns {string|undefined} 
      */
     find(key:string):string|undefined{
+        key = RawData.clense(key);
         for(const [name, value] of super.entries()){
             if(name.includes(key)) {
                 return value;
