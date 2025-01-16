@@ -16,7 +16,7 @@ export function getType(value:string|undefined):Type {
     if(value === undefined)
         throw new Error("Type data is missing!");
 
-    const match = value.toLocaleLowerCase().match(/(bug)|(dark)|(dragon)|(electric)|(fairy)|(fighting)|(fire)|(flying)|(ghost)|(grass)|(ground)|(ice)|(normal)|(poison)|(psychic)|(rock)|(steel)|(water)/);
+    const match = value.toLocaleLowerCase().match(/(bug|dark|dragon|electric|fairy|fighting|fire|flying|ghost|grass|ground|ice|normal|poison|psychic|rock|steel|water)/i);
 
     // Return ??? for wierd early types like Shadow and Curse instead of throwning Error.
     if(match === null) {
