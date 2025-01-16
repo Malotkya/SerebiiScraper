@@ -4,7 +4,7 @@
  * 
  * @author Alex Malotky
  */
-import { fetchDom, RawData } from "../util.js";;
+import { fetchDom, FileCache, RawData } from "../util.js";;
 import Type, { getType } from "./Type.js";
 import Category, {  getCategory } from "./Category.js";
 import { BASE_UTI, parseTable } from "./index.js";
@@ -225,6 +225,10 @@ export async function fetchAttackList(uri:string):Promise<[Record<string, string
  * @returns {Promsie<Record<string, Attack>>}
  */
 export async function fetchAttackDataList(uri:string):Promise<Record<string, Attack>> {
+    const cache = new FileCache();
+    if(cache.has(uri))
+        return JSON.parse(cache.get(uri)!)
+    
     const output:Record<string, Attack> = {};
 
     const [list, length] = await fetchAttackList(uri);
@@ -241,5 +245,6 @@ export async function fetchAttackDataList(uri:string):Promise<Record<string, Att
         console.log(`${Math.ceil((count++ / length) * 100)}%`);
     }
 
+    cache.set(uri, JSON.stringify(output));
     return output;
 }
