@@ -17,16 +17,6 @@ export function parseTable(table:Element):RawData {
 
     //Filter out rows from sub-tables
     const rows = Array.from(table.querySelectorAll("tr")).filter(row=>row.closest("table") === table);
-    
-    //Delete first row of table for "Legends: Arceus" Data
-    if(table.classList.contains("dextable")) {
-        if(rows.length > 0 && rows[0].childElementCount > 0) {
-            const test = rows[0].children[0];
-            
-            if(test.getAttribute("colspan") === "3")
-                rows.shift();
-        }
-    }
 
     while(rows.length > 0){
         const [keys, values] = parseNextRows(rows);
@@ -44,38 +34,41 @@ export function parseTable(table:Element):RawData {
  * @param {Element[]} rows 
  * @returns {[string[], stirng[]]} [keys, values]
  */
-function parseNextRows(rows:Element[]):[string[], string[]] {
-    const first = rows.shift();
-
-    //Return Empty Results if at the End
-    if(first === undefined)
-        return [[], []]
-
-    //Return Empty Results if at the End
-    if(first.childElementCount < 0)
-        return [[], []];
-
-    const keys:string[] = [];
+function parseNextRows(rows:Element[], keys?:string[]):[string[], string[]] {
     const values:string[] = [];
 
-    for(const child of first.children){
-        //Check if <br> seperating data
-        if(child.innerHTML.match(BREAK_REGEX)) {
-            const [key, value] = child.innerHTML.split(/<br ?\/?>/);
+    //Load keys if undefined
+    if(keys === undefined) {
+        keys = [];
+        const first = rows.shift();
 
-            keys.push(key);
+        //Return Empty Results if at the End
+        if(first === undefined)
+            return [[], []]
 
-            //Don't add value if nothing
-            if(value.trim())
-                values.push(value);
+        //Return Empty Results if at the End
+        if(first.childElementCount < 0)
+            return [[], []];
 
-        //Check if contians value instead of key
-        } else if(child.classList.contains("fooinfo")){
-            values.push(child.innerHTML);
-
-        //Default: add key
-        } else {
-            keys.push(child.innerHTML);
+        for(const child of first.children){
+            //Check if <br> seperating data
+            if(child.innerHTML.match(BREAK_REGEX)) {
+                const [key, value] = child.innerHTML.split(/<br ?\/?>/);
+    
+                keys.push(key);
+    
+                //Don't add value if nothing
+                if(value.trim())
+                    values.push(value);
+    
+            //Check if contians value instead of key
+            } else if(child.classList.contains("fooinfo")){
+                values.push(child.innerHTML);
+    
+            //Default: add key
+            } else {
+                keys.push(child.innerHTML);
+            }
         }
     }
     
@@ -90,6 +83,11 @@ function parseNextRows(rows:Element[]):[string[], string[]] {
         for(const child of second.children) {
             values.push(child.innerHTML);
         }
+    }
+
+    //Test if first row is a title row    
+    if(keys.length === 1 && values.length > 1){
+        return parseNextRows(rows, values);
     }
 
     //If more values then keys panic
