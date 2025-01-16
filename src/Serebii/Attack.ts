@@ -226,8 +226,12 @@ export async function fetchAttackList(uri:string):Promise<[Record<string, string
  */
 export async function fetchAttackDataList(uri:string):Promise<Record<string, Attack>> {
     const cache = new FileCache();
-    if(cache.has(uri))
-        return JSON.parse(cache.get(uri)!)
+    if(cache.has(uri)) {
+        process.stdout.write(`\u001b[${0}A`);
+        console.log("Cached!")
+        return JSON.parse(cache.get(uri)!);
+    }
+        
     
     const output:Record<string, Attack> = {};
 
