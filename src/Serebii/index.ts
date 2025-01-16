@@ -2,9 +2,10 @@
  * 
  * Generic Serebii Scrapping Functions
  */
-import {RawData} from "../util.js";
+import {RawData, fetchDom} from "../util.js";
 
 export const BASE_UTI = "https://www.serebii.net/";
+export const NATIONAL_DEX = "/pokemon/nationalpokedex.shtml";
 const BREAK_REGEX = /<br ?\/?>/;
 
 /** Parse Table Element
@@ -61,8 +62,12 @@ function parseNextTableRows(rows:Element[], keys?:string[]):[string[], string[]]
                 if(value.trim())
                     values.push(value);
     
+            //Gen 3 Pokemon Corner Case
+            } else if((child.textContent && child.textContent.includes("Game Picture")) || child.querySelector("table")){
+                //Skip this data.
+
             //Check if contians value instead of key
-            } else if(child.classList.contains("fooinfo")){
+            } else if(child.classList.contains("fooinfo") && keys.length > 0){
                 values.push(child.innerHTML);
     
             //Default: add key
@@ -81,13 +86,19 @@ function parseNextTableRows(rows:Element[], keys?:string[]):[string[], string[]]
 
         const second = rows.shift()!;
         for(const child of second.children) {
-            values.push(child.innerHTML);
+            if(child.querySelector("table") === null)
+                values.push(child.innerHTML);
         }
     }
 
     //Test if first row is a title row    
-    if(keys.length === 1 && values.length > 1){
-        return parseNextTableRows(rows, values);
+    if(keys.length === 1){
+        if(keys[0].includes("Gender Ratio")) {
+            return [keys, [values.join()]]
+        }
+
+        if(values.length > 1)
+            return parseNextTableRows(rows, values);
     }
 
     //If more values then keys panic
@@ -157,4 +168,39 @@ function parseNextListRows(rows:Element[]):string[]{
     }
 
     return output;
+}
+
+export async function fetchRegionPokedex(uri:string):Promise<string[]> {
+    const {document} = await fetchDom(BASE_UTI+uri);
+
+    const table = document.querySelector(".dextable")!;
+    const rows = Array.from(table.querySelectorAll("tr"));
+    const header = Array.from(rows.shift()!.children).map(e=>e.textContent!);
+    const index = header.indexOf("Name");
+
+    const output:string[] = [];
+    while(rows.length > 0){
+        const row =  Array.from(rows.shift()!.children).map(e=>e.textContent!);
+
+        //Skip sub-menu rows
+        if(row.length >= header.length) {
+            output.push(row[index]);
+        }
+    }
+
+    return output;
+}
+
+export function fetchNationalDex():Promise<string[]> {
+    return fetchRegionPokedex(NATIONAL_DEX);
+}
+
+export async function convertNameToNumber(name:string):Promise<string> {
+    const natDex = await fetchNationalDex();
+    const value = natDex.indexOf(name)+1;
+
+    if(value < 1000)
+        return `00${value}`.slice(-3);
+
+    return String(value);
 }
