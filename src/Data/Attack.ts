@@ -1,16 +1,8 @@
-import Attack, { fetchAttackDataList } from "../Serebii/Attack.js"
-
-const ATTACK_GENERATIONS = [
-    "attackdex-rby",
-    "attackdex-gs",
-    "attackdex",
-    "attackdex-dp",
-    "attackdex-bw",
-    "attackdex-xy",
-    "attackdex-sm",
-    "attackdex-swsh",
-    "attackdex-sv"
-]
+/** /Data/Attack
+ * 
+ * Attack Data as Stored in Database.
+ */
+import Attack, { fetchAttackDataList, ATTACK_GENERATIONS } from "../Serebii/Attack.js"
 
 /** Attack Data 
  * 
@@ -26,6 +18,11 @@ interface AttackData extends Attack{
 }
 export default AttackData;
 
+/** Get Last Gen
+ * 
+ * @param {AttackData} value 
+ * @returns {number}
+ */
 function getLastGen(value:AttackData):number {
     let max:number = -1;
     for(let gen in value.changes){
@@ -44,6 +41,10 @@ function getLastGen(value:AttackData):number {
     return max;
 }
 
+/** Fetch All Attack Data
+ * 
+ * @returns {Promise<AttackData[]>}
+ */
 export async function fetchAllAttackData():Promise<AttackData[]>{
     const masterData:Record<string, AttackData> = {};
 
