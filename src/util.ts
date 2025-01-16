@@ -6,22 +6,14 @@ import {JSDOM, DOMWindow} from 'jsdom';
  * Queue is nessisary because Serebii will close multiple connections opened at the same time.
  * 
  */
-const cache:Map<string, string> = new Map();
 const queue:Array<string> = [];
 
-/** Feth data
- * 
- * Uses queue and cache.
+/** Queue Feth data
  * 
  * @param {string} url 
  * @returns {string}
  */
 export async function fetch(url:string):Promise<string>{
-    //Check if cached
-    const check = cache.get(url);
-    if(check)
-        return check;
-
     //Check if url is already queued.
     if(!queue.includes(url))
         queue.push(url);
@@ -30,7 +22,6 @@ export async function fetch(url:string):Promise<string>{
     while(queue[0] !== url && queue.length > 0)
         await sleep();
         
-
     const response = await nodeFetch(url);
 
     //Remvoe from queue when done.
@@ -41,9 +32,6 @@ export async function fetch(url:string):Promise<string>{
         throw new Error(`${url} (${response.status}) - ${response.statusText}`);
 
     const buffer = await response.text();
-
-    //Cache results
-    cache.set(url, buffer);
 
     return buffer;
 }
@@ -96,7 +84,7 @@ export class RawData extends Map<string, string> {
     /** Get Data
      * 
      * @param {string} key 
-     * @returns {string}
+     * @returns {string|undefined}
      */
     get(key:string) {
         return super.get(RawData.clense(key))
