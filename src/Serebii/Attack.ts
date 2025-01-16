@@ -92,6 +92,21 @@ function getEffectRate(value:string):number{
     return Number(match[0]);
 }
 
+/** Insert Effect Rate
+ * 
+ * @param {string} effect 
+ * @param {number} rate 
+ */
+function insertEffectRate(effect:string, rate:number):string {
+    const update = effect.replace(/may/i, `${rate}% chance to`);
+
+    if(update !== effect){
+        return update;
+    }
+
+    return `${rate}%: ${effect};`
+}
+
 /** Get Effect Data From Strings
  * 
  * Prefers serebii description over in game description.
@@ -117,13 +132,15 @@ function getEffect(base:string|undefined, secondary:string|undefined, rate:strin
     if(secondary){
         const value = getEffectRate(rate);
 
-        if(value > 0)
-            return `${value}%: ${secondary}.`;
+        if(value > 0 && value < 100) {
+            return insertEffectRate(secondary, value)
+        }
 
         return secondary;
     }
 
-    return base.trim();
+    //Remove type sentince used in early games.
+    return base.replace(/.*?(bug|dark|dragon|electric|fairy|fighting|fire|flying|ghost|grass|ground|ice|normal|poison|psychic|rock|steel|water).*?\./i, "").trim();
 }
 
 /** Fetch Attack Data
