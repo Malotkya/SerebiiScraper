@@ -35,7 +35,7 @@ function getVersion(value:string|undefined):string|undefined {
 
     const match = value.matchAll(/<a.*?title="(.*?)" .*?data-key="\d+(.*?)".*?>/gi);
     for(const group of match){
-        if(group[1].includes("form"))
+        if(group[1].toLocaleLowerCase().includes("form") && group[2] !== "")
             return group[2];
     }
 
@@ -75,7 +75,7 @@ function getMoves(list:RawData[]):string[] {
 
     for(const data of list){
         const value = getMoveName(data.get("Attack Name")!);
-        if(value !== "undefined")
+        if(value !== "undefined" && !value.includes("!") && !value.includes("."))
             output.add(value);
     }
 
