@@ -18,6 +18,16 @@ export function parseTable(table:Element):RawData {
     //Filter out rows from sub-tables
     const rows = Array.from(table.querySelectorAll("tr")).filter(row=>row.closest("table") === table);
     
+    //Delete first row of table for "Legends: Arceus" Data
+    if(table.classList.contains("dextable")) {
+        if(rows.length > 0 && rows[0].childElementCount > 0) {
+            const test = rows[0].children[0];
+            
+            if(test.getAttribute("colspan") === "3")
+                rows.shift();
+        }
+    }
+
     while(rows.length > 0){
         const [keys, values] = parseNextRows(rows);
 
