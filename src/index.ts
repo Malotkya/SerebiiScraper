@@ -1,6 +1,7 @@
-import { fetchAllAttackData } from "./Data/Attack.js";
+import { fetchPokemonData } from "./Serebii/Pokemon.js";
+import { fetchRegionInfo } from "./Serebii/Region.js";
 import fs from "fs";
 
-fetchAllAttackData().then(value=>{
-    fs.writeFileSync("test.json", JSON.stringify(value, null, 4));
-})
+fetchRegionInfo("Kanto").then(([pokemon])=>{
+    fs.writeFileSync("test.json", JSON.stringify(pokemon, null, 4))
+});
