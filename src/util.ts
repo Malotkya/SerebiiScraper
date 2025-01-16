@@ -136,6 +136,10 @@ export class RawData extends Map<string, string> {
 export class FileCache {
     private _location:string;
 
+    private static clense(value:string):string {
+        return value.replace(/\/|\\/g, "-")
+    }
+
     constructor(location:string = "cache"){
         this._location = path.join(process.cwd(), location);
         if(!fs.existsSync(this._location)) {
@@ -144,15 +148,15 @@ export class FileCache {
     }
 
     set(key:string, value:string) {
-        fs.writeFileSync(path.join(this._location, key), value);
+        fs.writeFileSync(path.join(this._location, FileCache.clense(key)), value);
     }
 
     has(key:string){
-        return fs.existsSync(path.join(this._location, key));
+        return fs.existsSync(path.join(this._location, FileCache.clense(key)));
     }
 
     get(key:string) {
-        const filename = path.join(key);
+        const filename = path.join(this._location, FileCache.clense(key));
 
         if(fs.existsSync(filename) === false)
             return null;
