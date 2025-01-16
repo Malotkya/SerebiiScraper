@@ -10,6 +10,7 @@ interface Pokemon {
     abilities: string[],
     moves: string[]
 }
+export default Pokemon;
 
 function getName(value:string|undefined):string {
     if(value === undefined)
@@ -22,7 +23,7 @@ function getNumber(value:string|undefined):number {
     if(value === undefined)
         throw new Error("Missing Number data!");
 
-    const match = value.match(/(?<=#)\d+/)
+    const match = value.match(/((?<=#)\d+|\d+)/)
     if(match === null)
         throw new Error("Failed to Parse Number!");
 
@@ -143,7 +144,7 @@ export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<stri
                 rawData = parseTable(table);
         
                 //Test if Attack Table
-                if(rawData.get("Name") === undefined && rawData.get("English name") === undefined)
+                if(rawData.get("Classification") === undefined)
                     throw null;
             } catch (e){
                 //Throw null if table is invalid
@@ -154,7 +155,7 @@ export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<stri
             
             const name    = getName(rawData.get("Name") || rawData.find("Name"));
             const number  = getNumber(rawData.get("No.") || rawData.find("No."));
-            const types   = getAllTypes(rawData.get("Type"));
+            const types   = getAllTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!));
             const version = getVersion(spriteData);
             const moves   = getMoves(moveData);
 
