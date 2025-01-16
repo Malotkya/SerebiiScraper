@@ -100,6 +100,21 @@ export class RawData extends Map<string, string> {
         return super.set(RawData.clense(key), value || "");
     }
 
+    /** Find Data
+     * 
+     * @param {string} key
+     * @returns {string|undefined} 
+     */
+    find(key:string):string|undefined{
+        for(const [name, value] of super.entries()){
+            if(name.includes(key)) {
+                return value;
+            }
+        }
+
+        return undefined;
+    }
+
     /** Debug Dummp
      * 
      */
