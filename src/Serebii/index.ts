@@ -19,7 +19,7 @@ export function parseTable(table:Element):RawData {
     const rows = Array.from(table.querySelectorAll("tr")).filter(row=>row.closest("table") === table);
 
     while(rows.length > 0){
-        const [keys, values] = parseNextRows(rows);
+        const [keys, values] = parseNextTableRows(rows);
 
         for(let i=0; i<keys.length; i++){
             data.set(keys[i], values[i])
@@ -29,12 +29,12 @@ export function parseTable(table:Element):RawData {
     return data;
 }
 
-/** Parse Next Rows
+/** Parse Next Table Rows
  * 
  * @param {Element[]} rows 
  * @returns {[string[], stirng[]]} [keys, values]
  */
-function parseNextRows(rows:Element[], keys?:string[]):[string[], string[]] {
+function parseNextTableRows(rows:Element[], keys?:string[]):[string[], string[]] {
     const values:string[] = [];
 
     //Load keys if undefined
@@ -87,7 +87,7 @@ function parseNextRows(rows:Element[], keys?:string[]):[string[], string[]] {
 
     //Test if first row is a title row    
     if(keys.length === 1 && values.length > 1){
-        return parseNextRows(rows, values);
+        return parseNextTableRows(rows, values);
     }
 
     //If more values then keys panic
@@ -101,4 +101,60 @@ function parseNextRows(rows:Element[], keys?:string[]):[string[], string[]] {
     }
 
     return [keys, values];
+}
+
+/** Parse Table List Element
+ * 
+ * @param {Element} list 
+ * @returns {RawData[]}
+ */
+export function parseList(list:Element):RawData[] {
+    const rows = Array.from(list.querySelectorAll("tr"));
+
+    const header = parseNextListRows(rows);
+    const output:RawData[] = [];
+
+    while(rows.length > 0){
+        const values = parseNextListRows(rows);
+
+        if(header.length < values.length)
+            throw new Error("Mismatched row from header!")
+
+        while(values.length < header.length){
+            values.push("undefined");
+        }
+
+        const data = new RawData();
+        for(let i=0; i<header.length; ++i){
+            data.set(header[i], values[i]);
+        }
+
+        output.push(data);
+    }
+
+    return output;
+}
+
+/** Parse Nest List Rows
+ * 
+ * @param {Element[]} rows 
+ * @returns {string[]}
+ */
+function parseNextListRows(rows:Element[]):string[]{
+    const next = rows.shift();
+
+    if(next === undefined)
+        return [];
+
+    //Skip Empty and Title Rows
+    if(next.childElementCount < 2)
+        return parseNextListRows(rows);
+
+    const output:string[] = [];
+    
+    for(let child of next.children) {
+        output.push(child.innerHTML);
+    }
+
+    return output;
 }
