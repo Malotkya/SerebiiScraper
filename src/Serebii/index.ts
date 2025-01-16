@@ -2,7 +2,7 @@
  * 
  * Generic Serebii Scrapping Functions
  */
-import {RawData, fetchDom} from "../util.js";
+import {RawData, fetchDom, FileCache} from "../util.js";
 
 export const BASE_UTI = "https://www.serebii.net/";
 export const NATIONAL_DEX = "/pokemon/nationalpokedex.shtml";
@@ -86,8 +86,14 @@ function parseNextTableRows(rows:Element[], keys?:string[]):[string[], string[]]
 
         const second = rows.shift()!;
         for(const child of second.children) {
-            if(child.querySelector("table") === null)
+            const testTable = child.querySelector("table")
+            if( testTable !== null) {
+                const testAttribute = testTable.getAttribute("border");
+                if(testAttribute === null)
+                    values.push(child.innerHTML)
+            } else {
                 values.push(child.innerHTML);
+            }
         }
     }
 
@@ -171,12 +177,20 @@ function parseNextListRows(rows:Element[]):string[]{
 }
 
 export async function fetchRegionPokedex(uri:string):Promise<string[]> {
+    const cache = new FileCache();
+    if(cache.has(uri)) {
+        return JSON.parse(cache.get(uri)!);
+    }
+
     const {document} = await fetchDom(BASE_UTI+uri);
 
     const table = document.querySelector(".dextable")!;
     const rows = Array.from(table.querySelectorAll("tr"));
-    const header = Array.from(rows.shift()!.children).map(e=>e.textContent!);
+    const header = Array.from(rows.shift()!.children).map(e=>e.textContent!.trim());
     const index = header.indexOf("Name");
+
+    //Skip First Row
+    rows.shift();
 
     const output:string[] = [];
     while(rows.length > 0){
@@ -184,10 +198,11 @@ export async function fetchRegionPokedex(uri:string):Promise<string[]> {
 
         //Skip sub-menu rows
         if(row.length >= header.length) {
-            output.push(row[index]);
+            output.push(row[index].trim());
         }
     }
 
+    cache.set(uri, JSON.stringify(output));
     return output;
 }
 
