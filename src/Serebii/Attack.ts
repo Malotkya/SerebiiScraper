@@ -22,12 +22,6 @@ export const ATTACK_GENERATIONS = [
     "attackdex-sv"
 ]
 
-//Used to find tables to scrape
-const TABLE_SELECTERS = [
-    ".dextable",
-    ".dextab"
-]
-
 /** Attack Data 
  * 
  * Scraped off Serebii Page
@@ -89,16 +83,13 @@ function getNumber(value:string|undefined, name:string):number {
  * @returns {number}
  */
 function getEffectRate(value:string):number{
-    const match = value.match(/^(\d+|--)\s+%\s+$/);
+    const match = value.match(/\d+/);
 
     if(match === null){
         return 0;
     }
 
-    if(match[1] === "--")
-        return 0;
-
-    return Number(match[1]);
+    return Number(match[0]);
 }
 
 /** Get Effect Data From Strings
@@ -143,7 +134,7 @@ function getEffect(base:string|undefined, secondary:string|undefined, rate:strin
 export async function fetchAttackData(uri:string):Promise<Attack> {
     const {document} = await fetchDom(BASE_UTI+uri);
 
-    for(const table of document.querySelectorAll(TABLE_SELECTERS.join(", "))) {
+    for(const table of document.querySelectorAll("table")) {
         let rawData:RawData;
         try {
             //Test if table is Valid
