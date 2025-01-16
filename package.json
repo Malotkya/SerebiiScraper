@@ -1,0 +1,23 @@
+{
+  "name": "serebii",
+  "version": "1.0.0",
+  "description": "\"Serebii Data Scrapper\"",
+  "keywords": [
+    "Pokemon",
+    "Serebii"
+  ],
+  "license": "ISC",
+  "author": "Alex Malotky",
+  "type": "module",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "tsc && node ./build"
+  },
+  "dependencies": {
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^22.10.6",
+    "jsdom": "^26.0.0",
+    "node-fetch": "^3.3.2",
+    "typescript": "^5.7.3"
+  }
+}
