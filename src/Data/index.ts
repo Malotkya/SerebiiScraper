@@ -35,12 +35,18 @@ export async function scrapeData():Promise<Data> {
     const items = await verifiedItemData();
 
     console.log("Verifying Pokemon Data:");
-    if( verifyPokemonData(pokemon, moves, Object.keys(abilityMap)) === false)
+    if( verifyPokemonData(pokemon, moves, Object.keys(abilityMap)) === false) {
+        fs.writeFileSync("error.json", JSON.stringify(pokemon, null, 2));
         throw new Error("Invalid Pokemon Data!");
+    }
+        
 
     console.log("Verifying Move Data:");
-    if( verifyAttackData(moves, pokemon) === false)
+    if( verifyAttackData(moves, pokemon) === false) {
+        fs.writeFileSync("error.json", JSON.stringify(moves, null, 2));
         throw new Error("Invalid Move Data!");
+    }
+        
 
     return {pokemon, abilities, moves, games, items}
 }
