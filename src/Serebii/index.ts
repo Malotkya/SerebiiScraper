@@ -176,7 +176,12 @@ function parseNextListRows(rows:Element[]):string[]{
     return output;
 }
 
-export async function fetchRegionPokedex(uri:string):Promise<string[]> {
+/** Fetch Single Pokedex
+ * 
+ * @param {string} uri 
+ * @returns {Promise<string[]>}
+ */
+export async function fetchSinglePokedex(uri:string):Promise<string[]> {
     const cache = new FileCache();
     if(cache.has(uri)) {
         return JSON.parse(cache.get(uri)!);
@@ -202,14 +207,36 @@ export async function fetchRegionPokedex(uri:string):Promise<string[]> {
         }
     }
 
-    cache.set(uri, JSON.stringify(output));
+    cache.set(uri, JSON.stringify(output))
     return output;
 }
 
-export function fetchNationalDex():Promise<string[]> {
-    return fetchRegionPokedex(NATIONAL_DEX);
+/** Fetch Region Pokedex
+ * 
+ * @param {string|string[]} uri 
+ * @returns {Promise<string[]>}
+ */
+export async function fetchRegionPokedex(uri:string|readonly string[]):Promise<string[]> {
+    if(typeof uri === "string") {
+        return fetchSinglePokedex(uri);
+    }
+
+    return (await Promise.all(uri.map(fetchSinglePokedex))).flat();
 }
 
+/** Fetch National Pokedex
+ * 
+ * @returns {Promise<string[]>}
+ */
+export function fetchNationalDex():Promise<string[]> {
+    return fetchSinglePokedex(NATIONAL_DEX);
+}
+
+/** Convert Name To Number
+ * 
+ * @param {string} name 
+ * @returns {Promise<string>}
+ */
 export async function convertNameToNumber(name:string):Promise<string> {
     const natDex = await fetchNationalDex();
     const value = natDex.indexOf(name)+1;
