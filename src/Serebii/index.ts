@@ -233,8 +233,13 @@ export async function fetchSinglePokedex(uri:string):Promise<string[]> {
     while(table.length > 0){
         const row =  Array.from(table.shift()!.children).map(e=>e.textContent!);
         
-        if(row.length > index)
-            output.push(row[index].trim());
+        if(row.length > index) {
+            const match = row[index].match(/[A-Za-zÀ-ÖØ-öø-ÿ♀♂\-:.' ]+/);
+
+            if(match){
+                output.push(match[0].trim());
+            }
+        }
     }
 
     cache.set(uri, JSON.stringify(output))
