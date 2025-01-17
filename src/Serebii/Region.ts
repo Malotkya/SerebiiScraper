@@ -43,6 +43,8 @@ export async function fetchRegionInfo(r:Region):Promise<[Record<string, Pokemon>
     const cache = new FileCache();
 
     if(cache.has(uriStart)) {
+        process.stdout.write(`\u001b[${0}A`);
+        console.log("Cached!");
         return JSON.parse(cache.get(uriStart)!)
     }
     
