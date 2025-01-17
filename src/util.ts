@@ -3,12 +3,13 @@ import {JSDOM, DOMWindow} from 'jsdom';
 import fs from "node:fs";
 import path from "node:path";
 
-/** Cache and Queue used by fetch call.
+/** Decoder and Queue used by fetch call.
  * 
  * Queue is nessisary because Serebii will close multiple connections opened at the same time.
  * 
  */
 const queue:Array<string> = [];
+const decoder = new TextDecoder("ISO-8859-1");
 
 /** Queue Feth data
  * 
@@ -33,9 +34,8 @@ export async function fetch(url:string):Promise<string>{
     if(!response.ok)
         throw new Error(`${url} (${response.status}) - ${response.statusText}`);
 
-    const buffer = await response.text();
-
-    return buffer;
+    const buffer = await response.arrayBuffer();
+    return decoder.decode(buffer);
 }
 
 /** Sleep function used when waiting for result.
