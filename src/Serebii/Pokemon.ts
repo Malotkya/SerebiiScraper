@@ -1,3 +1,9 @@
+/** /Serebii/Pokemon
+ * 
+ * Serebii Pokemon Data
+ * 
+ * @author Alex Malotky
+ */
 import { RawData, fetchDom } from "../util.js";
 import Type, {getAllTypes} from "./Type.js"
 import { BASE_UTI, parseTable, parseList } from "./index.js";
@@ -12,6 +18,11 @@ interface Pokemon {
 }
 export default Pokemon;
 
+/** Get Name
+ * 
+ * @param {string} value 
+ * @returns {string}
+ */
 function getName(value:string|undefined):string {
     if(value === undefined)
         throw new Error("Missing Name data!");
@@ -19,6 +30,11 @@ function getName(value:string|undefined):string {
     return value.trim();
 }
 
+/** Get Number
+ * 
+ * @param {string} value 
+ * @returns {number}
+ */
 function getNumber(value:string|undefined):number {
     if(value === undefined)
         throw new Error("Missing Number data!");
@@ -30,6 +46,11 @@ function getNumber(value:string|undefined):number {
     return Number(match[0]);
 }
 
+/** Get Version
+ * 
+ * @param {string} value 
+ * @returns {string}
+ */
 function getVersion(value:string|undefined):string|undefined {
     if(value === undefined)
         return undefined;
@@ -43,6 +64,11 @@ function getVersion(value:string|undefined):string|undefined {
     return undefined;
 }
 
+/** Get Abilities
+ * 
+ * @param {string} value 
+ * @returns {Record<string, string>}
+ */
 function getAbilities(value:string|undefined):Record<string, string> {
     if(value === undefined)
         return {};
@@ -59,8 +85,8 @@ function getAbilities(value:string|undefined):Record<string, string> {
 
 /** Get Move Name From Possible HTML
  * 
- * @param value 
- * @returns 
+ * @param {string} value 
+ * @returns {string}
  */
 function getMoveName(value:string):string {
     const match = value.match(/<.*?>(.*?)<\/.*?>/i);
@@ -71,6 +97,11 @@ function getMoveName(value:string):string {
     return value.trim();
 }
 
+/** Get Moves
+ * 
+ * @param {RawData[]} list 
+ * @returns {string[]}
+ */
 function getMoves(list:RawData[]):string[] {
     const output:Set<string> = new Set();
 
@@ -83,6 +114,11 @@ function getMoves(list:RawData[]):string[] {
     return Array.from(output);
 }
 
+/** Find Move LIsts
+ * 
+ * @param {NodeListOf<Element>} lists 
+ * @returns {RawData[]}
+ */
 function findMoveLists(lists:NodeListOf<Element>):RawData[] {
     let output:RawData[] = [];
 
@@ -107,6 +143,11 @@ function findMoveLists(lists:NodeListOf<Element>):RawData[] {
     return output;
 }
 
+/** Find Sprites
+ * 
+ * @param {NodeListOf<Element>} list 
+ * @returns {string|undefined}
+ */
 function findSprites(list:NodeListOf<Element>):string|undefined {
     for(const table of list) {
         try {
@@ -130,6 +171,11 @@ function findSprites(list:NodeListOf<Element>):string|undefined {
     return undefined;
 }
 
+/** Fetch Pokemon Data
+ * 
+ * @param {string} uri 
+ * @returns {Promise<[Pokemon, Record<string, string>]>}
+ */
 export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<string, string>]> {
     const {document} = await fetchDom(BASE_UTI+uri);
     const tables = document.querySelectorAll("table");
@@ -150,8 +196,6 @@ export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<stri
                 //Throw null if table is invalid
                 throw null;
             }
-
-            
             
             const name    = getName(rawData.get("Name") || rawData.find("Name"));
             const number  = getNumber(rawData.get("No.") || rawData.find("No."));
