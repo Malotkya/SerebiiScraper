@@ -1,6 +1,11 @@
-import {fetchItemDataList} from "./Serebii/Item.js";
-import fs from "fs";
+import { scrapeData, exportData } from "./Data/index.js";
 
-fetchItemDataList().then(data=>{
-    fs.writeFileSync("test.json", JSON.stringify(data, null, 4))
-});
+(async()=>{
+    console.log("Starting!");
+    const {games, items, pokemon, abilities, moves} = await scrapeData();
+
+    console.log("Exporting Data!");
+    await exportData(games, items, pokemon, abilities, moves);
+
+    console.log("Complete!");
+})()
