@@ -1,10 +1,35 @@
+/** /Serebii/Region
+ * 
+ * @author Alex Malotky
+ */
 import { FileCache } from "../util.js";
 import { fetchRegionPokedex, convertNameToNumber } from "./index.js";
 import Pokemon, {fetchPokemonData} from "./Pokemon.js";
 
+// Location of All Region Info
 export const REGION_MAP = {
-    "Kanto": ["/pokemon/gen1pokemon.shtml", "/pokedex"],
-    "TEST": ""
+    "Kanto":  [ 1, "/pokedex/",    "pokemon/gen1pokemon.shtml"],
+    "Johto":  [ 2, "/pokedex-gs/", "pokemon/gen2pokemon.shtml"],
+    "Hoenn":  [ 3, "/pokedex-rs/", "rubysapphire/hoennpokedex.shtml"],
+    "Sinnoh": [ 4, "/pokedex-dp/", "platinum/sinnohdex.shtml"],
+    "Unova":  [ 5, "/pokedex-bw/", "black2white2/unovadex.shtml"],
+    "Kalos":  [ 6, "/pokedex-xy/", [
+        "xy/centralpokedex.shtml",
+        "xy/coastalpokedex.shtml",
+        "xy/mountainpokedex.shtml"
+    ]],
+    "Alola":  [ 7, "/pokedex-sm/", "ultrasunultramoon/alolapokedex.shtml"],
+    "Galar":  [ 8, "/pokedex-swsh/", [
+        "swordshield/galarpokedex.shtml",
+        "swordshield/isleofarmordex.shtml",
+        "swordshield/thecrowntundradex.shtml"
+    ]],
+    "Hisui":  [ 8, "/pokedex-swsh/", "/legendsarceus/hisuipokedex.shtml"],
+    "Paldea": [ 9, "/pokedex-sv/", [
+        "https://www.serebii.net/scarletviolet/paldeapokedex.shtml",
+        "https://www.serebii.net/scarletviolet/kitakamipokedex.shtml",
+        "https://www.serebii.net/scarletviolet/blueberrypokedex.shtml"
+    ]]
 } as const;
 
 type Region = keyof typeof REGION_MAP;
@@ -13,15 +38,15 @@ export default Region;
 //@ts-ignore
 export const ALL_REGIONS:Region[] = Object.keys(REGION_MAP);
 
-export async function fetchRegionInfo(r:Region):Promise<[Pokemon[], Record<string, string>]> {
-    const [pokedex, uriStart] = REGION_MAP[r];
+export async function fetchRegionInfo(r:Region):Promise<[Record<string, Pokemon>, Record<string, string>]> {
+    const [_, uriStart, pokedex] = REGION_MAP[r];
     const cache = new FileCache();
 
     if(cache.has(uriStart)) {
         return JSON.parse(cache.get(uriStart)!)
     }
     
-    const output:Pokemon[] = [];
+    const output:Record<string, Pokemon> = {};
     const masterMap:Record<string, string> = {};
     const getUri = async(name:string) => `${uriStart}/${await convertNameToNumber(name)}.shtml`;
 
@@ -32,7 +57,7 @@ export async function fetchRegionInfo(r:Region):Promise<[Pokemon[], Record<strin
 
         try {
             const [value, map] = await fetchPokemonData(await getUri(name));
-            output.push(value);
+            output[name] = value;
             for(name in map){
                 masterMap[name] = map[name];
             }
