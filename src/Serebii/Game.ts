@@ -14,27 +14,28 @@ interface Game {
     generation: number,
     modifiers: Modifier
 }
+export default Game;
 
 //Generation 1
-const Green:Game = {
+export const Green:Game = {
     name: "Green Version",
     sprite: GREEN_SPRITE,
     generation: 1,
     modifiers: GEN_ONE
 };
-const Red:Game = {
+export const Red:Game = {
     name: "Red Version",
     sprite: RED_BLUE_SPRITES,
     generation: 1,
     modifiers: GEN_ONE
 }
-const Blue:Game = {
+export const Blue:Game = {
     name: "Blue Version",
     sprite: RED_BLUE_SPRITES,
     generation: 1,
     modifiers: GEN_ONE
 }
-const Yellow:Game = {
+export const Yellow:Game = {
     name: "Yellow Version",
     sprite: YELLOW_SPRITES,
     generation: 1,
@@ -42,19 +43,19 @@ const Yellow:Game = {
 }
 
 //Generation 2
-const Gold:Game = {
+export const Gold:Game = {
     name: "Gold Version",
     sprite: GOLD_SPRITE,
     generation: 2,
     modifiers: GEN_TWO
 }
-const Silver:Game = {
+export const Silver:Game = {
     name: "Silver Version",
     sprite: SILVER_SPRITE,
     generation: 2,
     modifiers: GEN_TWO
 }
-const Crystal:Game = {
+export const Crystal:Game = {
     name: "Crystal Version",
     sprite: CRYSTAL_SPRITE,
     generation: 2,
@@ -62,31 +63,31 @@ const Crystal:Game = {
 }
 
 //Generation 3
-const Ruby:Game = {
+export const Ruby:Game = {
     name: "Ruby",
     sprite: GEN_THREE_SPRITE,
     generation: 3,
     modifiers: GEN_THREE
 }
-const Sapphire:Game = {
+export const Sapphire:Game = {
     name: "Sapphire",
     sprite: GEN_THREE_SPRITE,
     generation: 3,
     modifiers: GEN_THREE
 }
-const Emerald:Game = {
+export const Emerald:Game = {
     name: "Emerald",
     sprite: GEN_THREE_SPRITE,
     generation: 3,
     modifiers: GEN_THREE
 }
-const FireRed:Game = {
+export const FireRed:Game = {
     name: "Fire Red",
     sprite: GEN_THREE_REMAKE_SPRITE,
     generation: 3,
     modifiers: GEN_THREE
 }
-const LeafGreen:Game = {
+export const LeafGreen:Game = {
     name: "Leaf Green",
     sprite: GEN_THREE_REMAKE_SPRITE,
     generation: 3,
@@ -94,31 +95,31 @@ const LeafGreen:Game = {
 }
 
 //Generation 4
-const Diamond:Game = {
+export const Diamond:Game = {
     name: "Diamond",
     sprite: GEN_FOUR_SPRITE,
     generation: 4,
     modifiers: GEN_FOUR
 }
-const Pearl:Game = {
+export const Pearl:Game = {
     name: "Pearl",
     sprite: GEN_FOUR_SPRITE,
     generation: 4,
     modifiers: GEN_FOUR
 }
-const Platinum:Game = {
+export const Platinum:Game = {
     name: "Platinum",
     sprite: GEN_FOUR_SPRITE,
     generation: 4,
     modifiers: GEN_FOUR
 }
-const HeartGold:Game = {
+export const HeartGold:Game = {
     name: "Heart Gold",
     sprite: GEN_FOUR_REMAKE_SPRITE,
     generation: 4,
     modifiers: GEN_FOUR
 }
-const SoulSilver:Game = {
+export const SoulSilver:Game = {
     name: "Soul Silver",
     sprite: GEN_FOUR_REMAKE_SPRITE,
     generation: 4,
@@ -126,25 +127,25 @@ const SoulSilver:Game = {
 }
 
 //Generation 5
-const Black:Game = {
+export const Black:Game = {
     name: "Black",
     sprite: GEN_FIVE_SPRITE,
     generation: 5,
     modifiers: GEN_FIVE
 }
-const White:Game = {
+export const White:Game = {
     name: "White",
     sprite: GEN_FIVE_SPRITE,
     generation: 5,
     modifiers: GEN_FIVE
 }
-const Black2:Game = {
+export const Black2:Game = {
     name: "Black Two",
     sprite: GEN_FIVE_SPRITE,
     generation: 5,
     modifiers: GEN_FIVE
 }
-const White2:Game = {
+export const White2:Game = {
     name: "White Two",
     sprite: GEN_FIVE_SPRITE,
     generation: 5,
@@ -152,25 +153,25 @@ const White2:Game = {
 }
 
 //Generation 6
-const X:Game = {
+export const X:Game = {
     name: "X",
     sprite: GEN_SIX_SPRITE,
     generation: 6,
     modifiers: GEN_SIX
 }
-const Y:Game = {
+export const Y:Game = {
     name: "Y",
     sprite: GEN_SIX_SPRITE,
     generation: 6,
     modifiers: GEN_SIX
 }
-const AlphaSapphire:Game = {
+export const AlphaSapphire:Game = {
     name: "Alpha Sapphire",
     sprite: GEN_SIX_SPRITE,
     generation: 6,
     modifiers: GEN_SIX
 }
-const OmegaRuby:Game = {
+export const OmegaRuby:Game = {
     name: "Omega Ruby",
     sprite: GEN_SIX_SPRITE,
     generation: 6,
@@ -178,37 +179,37 @@ const OmegaRuby:Game = {
 }
 
 //Generation 7
-const Sun:Game = {
+export const Sun:Game = {
     name: "Sun",
     sprite: GEN_SEVEN_SPRITE,
     generation: 7,
     modifiers: GEN_SEVEN
 }
-const Moon:Game = {
+export const Moon:Game = {
     name: "Moon",
     sprite: GEN_SEVEN_SPRITE,
     generation: 7,
     modifiers: GEN_SEVEN
 }
-const UltraSun:Game = {
+export const UltraSun:Game = {
     name: "Ultra Sun",
     sprite: GEN_SEVEN_SPRITE,
     generation: 7,
     modifiers: GEN_SEVEN
 }
-const UltraMoon:Game = {
+export const UltraMoon:Game = {
     name: "Ultra Moon",
     sprite: GEN_SEVEN_SPRITE,
     generation: 7,
     modifiers: GEN_SEVEN
 }
-const LetsGoPikachu:Game = {
+export const LetsGoPikachu:Game = {
     name: "Let's Go Pickachu",
     sprite: LETS_GO_SPRITES,
     generation: 7,
     modifiers: LIMITED
 }
-const LetsGoEevee:Game = {
+export const LetsGoEevee:Game = {
     name: "Let's Go Eevee",
     sprite: LETS_GO_SPRITES,
     generation: 7,
@@ -216,31 +217,31 @@ const LetsGoEevee:Game = {
 }
 
 //Generation 8
-const Sword:Game = {
+export const Sword:Game = {
     name: "Sword",
     sprite: GEN_EIGHT_SPRITE,
     generation: 8,
     modifiers: GEN_EIGHT
 }
-const Shield:Game = {
+export const Shield:Game = {
     name: "Shield",
     sprite: GEN_EIGHT_SPRITE,
     generation: 8,
     modifiers: GEN_EIGHT
 }
-const BrilliantDiamond:Game = {
+export const BrilliantDiamond:Game = {
     name: "Brilliant Diamond",
     sprite: GEN_EIGHT_SPRITE,
     generation: 8,
     modifiers: GEN_EIGHT
 }
-const ShiningPearl:Game = {
+export const ShiningPearl:Game = {
     name: "Shining Pearl",
     sprite: GEN_EIGHT_SPRITE,
     generation: 8,
     modifiers: GEN_EIGHT
 }
-const Arceus:Game = {
+export const Arceus:Game = {
     name: "Legends: Arceus",
     sprite: GEN_EIGHT_SPRITE,
     generation: 8,
@@ -248,29 +249,15 @@ const Arceus:Game = {
 }
 
 //Generation 9
-const Scarlet:Game = {
+export const Scarlet:Game = {
     name: "Scarlet",
     sprite: GEN_NINE_SPRITE,
     generation: 9,
     modifiers: GEN_NINE
 }
-const Violet:Game = {
+export const Violet:Game = {
     name: "Violet",
     sprite: GEN_NINE_SPRITE,
     generation: 9,
     modifiers: GEN_NINE
-}
-
-export async function getAllGameDataList():Promise<Record<string, Game>> {
-    return {
-        Green, Red, Blue, Yellow,
-        Gold, Silver, Crystal,
-        Ruby, Sapphire, Emerald, FireRed, LeafGreen,
-        Diamond, Pearl, Platinum, HeartGold, SoulSilver,
-        Black, White, Black2, White2,
-        X, Y, AlphaSapphire, OmegaRuby,
-        Sun, Moon, UltraSun, UltraMoon, LetsGoEevee, LetsGoPikachu,
-        Sword, Shield, BrilliantDiamond, ShiningPearl, Arceus,
-        Scarlet, Violet
-    }
 }
