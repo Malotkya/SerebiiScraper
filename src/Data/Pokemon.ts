@@ -8,9 +8,11 @@ import Pokemon from "../Serebii/Pokemon.js";
 import { fetchRegionInfo, ALL_REGIONS, REGION_MAP } from "../Serebii/Region.js";
 import Type from "../Serebii/Type.js";
 import { getLastGen, arrayEqual } from "../util.js"
+import AttackData from "./Attack.js";
 
 interface PokemonData {
     name:string,
+    number: number,
     types:Type[],
     versions: Record<string, string>, 
     abilities: string[],
@@ -110,4 +112,53 @@ export async function fetchAllPokemonData():Promise<[PokemonData[], Record<strin
     }
 
     return [Object.values(AllPokemon), AllNatures];
+}
+
+export function verifyPokemonData(pokemon:PokemonData[], attacks:AttackData[], abilities:string[]):boolean {
+    const check:Array<string> = attacks.map(a=>a.name);
+
+    for(let i=1; i<=pokemon.length; i++) {
+        const p = pokemon[i];
+
+        if(p.number !== i){
+            console.error("Missing Pokmeon at: " + 1);
+            return false;
+        }
+
+        for(const a of p.abilities) {
+            if(!abilities.includes(a)) {
+                console.error(`Missing Ability ${a} on ${p.name}!`);
+                return false;
+            }
+        }
+
+        for(const m of p.moves){
+            if(!check.includes(m)) {
+                console.error(`Missing Move ${m} on ${p.name}`);
+                return false;
+            }
+        }
+
+        for(const g in p.changes) {
+            if(p.changes[g].abilities){
+                for(const a of p.changes[g].abilities) {
+                    if(!abilities.includes(a)) {
+                        console.error(`Missing Ability ${a} at ${g} on ${p.name}!`);
+                        return false;
+                    }
+                }
+            }
+
+            if(p.changes[g].moves){
+                for(const m of p.changes[g].moves){
+                    if(!check.includes(m)) {
+                        console.error(`Missing Move ${m} at ${g} on ${p.name}`);
+                        return false;
+                    }
+                }
+            }
+        }
+    } //END FOR
+
+    return true;
 }

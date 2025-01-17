@@ -4,6 +4,7 @@
  */
 import Attack, { fetchAttackDataList, ATTACK_GENERATIONS } from "../Serebii/Attack.js"
 import { getLastGen } from "../util.js"
+import PokemonData from "./Pokemon.js";
 /** Attack Data 
  * 
  * Stored in Database
@@ -77,4 +78,37 @@ export async function fetchAllAttackData():Promise<AttackData[]>{
     }
 
     return Object.values(masterData);
+}
+
+/** Verify Attack Data
+ * 
+ * @param {AttackData[]} data 
+ * @param {PokemonData[]} pokemon 
+ * @returns {boolean}
+ */
+export function verifyAttackData(data: AttackData[], pokemon: PokemonData[]):boolean {
+    const check:Set<string> = new Set();
+
+    for(const p of pokemon){
+        for(const m of p.moves){
+            check.add(m);
+        }
+
+        for(const g in p.changes) {
+            const move = p.changes[g].moves;
+
+            if(move){
+                for(const m of move)
+                    check.add(m);
+            }
+        }
+    }
+
+    const list:string[] = data.map(a=>a.name).filter(m=>check.has(m));
+
+    for(const error of list){
+        console.debug(error);
+    }
+
+    return list.length === 0;
 }
