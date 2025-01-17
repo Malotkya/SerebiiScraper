@@ -176,6 +176,38 @@ function parseNextListRows(rows:Element[]):string[]{
     return output;
 }
 
+/** Find Name Index
+ * 
+ * @param {NodeListOF<Element>} row 
+ * @returns {number}
+ */
+function findNameIndex(row:NodeListOf<Element>):number {
+    for(let index=0; index<row.length; index++){
+        if(row[index].textContent?.toLowerCase().includes("name"))
+            return index;
+    }
+
+    return -1;
+}
+
+/** Find Name Table
+ * 
+ * @param {NodeListOf<Element>} list 
+ * @returns {[NodeListOf<Element>|null, number]}
+ */
+function findNameTable(list:NodeListOf<Element>):[Element[]|null, number]{
+    for(const table of list){
+        const rows = table.querySelectorAll("tr");
+        if(rows.length > 0){
+            const index = findNameIndex(rows[0].querySelectorAll("td"));
+            if(index >= 0)
+                return [Array.from(rows), index];
+        }
+    }
+
+    return [null, -1];
+}
+
 /** Fetch Single Pokedex
  * 
  * @param {string} uri 
@@ -188,23 +220,21 @@ export async function fetchSinglePokedex(uri:string):Promise<string[]> {
     }
 
     const {document} = await fetchDom(BASE_UTI+uri);
+    const [table, index] = findNameTable(document.querySelectorAll("table"));
 
-    const table = document.querySelector(".dextable")!;
-    const rows = Array.from(table.querySelectorAll("tr"));
-    const header = Array.from(rows.shift()!.children).map(e=>e.textContent!.trim());
-    const index = header.indexOf("Name");
+    if(table === null)
+        throw new Error("Unable to find Table!");
 
-    //Skip First Row
-    rows.shift();
+    //Skip First Rows
+    table.shift();
+    table.shift();
 
     const output:string[] = [];
-    while(rows.length > 0){
-        const row =  Array.from(rows.shift()!.children).map(e=>e.textContent!);
-
-        //Skip sub-menu rows
-        if(row.length >= header.length) {
+    while(table.length > 0){
+        const row =  Array.from(table.shift()!.children).map(e=>e.textContent!);
+        
+        if(row.length > index)
             output.push(row[index].trim());
-        }
     }
 
     cache.set(uri, JSON.stringify(output))
