@@ -26,9 +26,9 @@ export const REGION_MAP = {
     ]],
     "Hisui":  [ 8, "/pokedex-swsh/", "/legendsarceus/hisuipokedex.shtml"],
     "Paldea": [ 9, "/pokedex-sv/", [
-        "https://www.serebii.net/scarletviolet/paldeapokedex.shtml",
-        "https://www.serebii.net/scarletviolet/kitakamipokedex.shtml",
-        "https://www.serebii.net/scarletviolet/blueberrypokedex.shtml"
+        "scarletviolet/paldeapokedex.shtml",
+        "scarletviolet/kitakamipokedex.shtml",
+        "scarletviolet/blueberrypokedex.shtml"
     ]]
 } as const;
 
