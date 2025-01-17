@@ -1,7 +1,7 @@
-import { fetchPokemonData } from "./Serebii/Pokemon.js";
-import { fetchRegionInfo } from "./Serebii/Region.js";
+import { fetchAllPokemonData } from "./Data/Pokemon.js";
 import fs from "fs";
 
-fetchRegionInfo("Kanto").then(([pokemon])=>{
-    fs.writeFileSync("test.json", JSON.stringify(pokemon, null, 4))
+fetchAllPokemonData().then(([pokemon, natures])=>{
+    fs.writeFileSync("test.json", JSON.stringify(pokemon, null, 4));
+    console.log(natures);
 });
