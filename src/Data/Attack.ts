@@ -19,8 +19,6 @@ interface AttackData extends Attack{
 }
 export default AttackData;
 
-
-
 /** Fetch All Attack Data
  * 
  * @returns {Promise<AttackData[]>}
@@ -111,4 +109,33 @@ export function verifyAttackData(data: AttackData[], pokemon: PokemonData[]):boo
     }
 
     return list.length === 0;
+}
+
+export function generateAttackSQL(moves:AttackData[]):string {
+    let buffer = `CREATE TABLE Moves(
+        id INTEGER PRIMARY KEY,
+        name: TEXT,
+        category: TEXT,
+        type: TEXT,
+        pp: INTEGER,
+        power: INTEGER,
+        accuracy: INTEGER,
+        effect: TEXT,
+        changes: TEXT
+    );`.replaceAll(/\s+/g, " ") + "\n";
+
+    for(let m of moves){
+        buffer += `INSERT INTO Moves Values(
+            '${m.name}',
+            '${m.category}'
+            '${m.type}',
+            ${m.pp},
+            ${m.power},
+            ${m.accuracy},
+            "${m.effect}",
+            "${m.changes}"
+        );`.replaceAll(/\s+/g, " ") + "\n";
+    }
+
+    return buffer;
 }

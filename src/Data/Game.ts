@@ -14,7 +14,10 @@ import Game, {
     Scarlet, Violet
 } from "../Serebii/Game.js"
 
-export async function verifiedGameData():Promise<Record<string, Game>> {
+type GameData = Record<string, Game>
+export default GameData;
+
+export async function verifiedGameData():Promise<GameData> {
     return {
         Green, Red, Blue, Yellow,
         Gold, Silver, Crystal,
@@ -26,4 +29,27 @@ export async function verifiedGameData():Promise<Record<string, Game>> {
         Sword, Shield, BrilliantDiamond, ShiningPearl, Arceus,
         Scarlet, Violet
     }
+}
+
+export function generateGameSQL(data:GameData):string {
+    let buffer = `CREATE TABLE Games(
+        id TEXT PRIMARY KEY,
+        name: TEXT,
+        sprite: TEXT,
+        generation: INTEGER,
+        modifiers: TEXT
+    );`.replaceAll(/\s+/g, " ") + "\n";
+
+    for(const id in data) {
+        const game = data[id];
+        buffer += `INSERT INTO Games VALUES(
+            ${id},
+            "${game.name}",
+            '${JSON.stringify(game.sprite)}',
+            ${game.generation},
+            '${JSON.stringify(game.modifiers)}'
+        );`.replaceAll(/\s+/g, " ") + "\n"
+    }
+
+    return buffer;
 }

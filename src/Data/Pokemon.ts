@@ -9,6 +9,7 @@ import { fetchRegionInfo, ALL_REGIONS, REGION_MAP } from "../Serebii/Region.js";
 import Type from "../Serebii/Type.js";
 import { getLastGen, arrayEqual } from "../util.js"
 import AttackData from "./Attack.js";
+import Item from "./Item.js";
 
 interface PokemonData {
     name:string,
@@ -87,18 +88,18 @@ function update(record:PokemonData, data:Pokemon, region:string, generation:numb
  */
 export async function fetchAllPokemonData():Promise<[PokemonData[], Record<string, string>]>{
     const AllPokemon:Record<string, PokemonData> = {}
-    const AllNatures:Record<string, string> = {};
+    const AllAbilities:Record<string, string> = {};
     
     for(const region of ALL_REGIONS) {
         const [generation] = REGION_MAP[region];
 
         console.log(`Downloading ${region}\n`);
 
-        const [pokemon, natures] = await fetchRegionInfo(region);
+        const [pokemon, abilites] = await fetchRegionInfo(region);
 
         //Update Natures
-        for(const name in natures){
-            AllNatures[name] = natures[name];
+        for(const name in abilites){
+            AllAbilities[name] = abilites[name];
         }
 
         //Update Pokemon
@@ -111,7 +112,7 @@ export async function fetchAllPokemonData():Promise<[PokemonData[], Record<strin
         }
     }
 
-    return [Object.values(AllPokemon), AllNatures];
+    return [Object.values(AllPokemon), AllAbilities];
 }
 
 export function verifyPokemonData(pokemon:PokemonData[], attacks:AttackData[], abilities:string[]):boolean {
@@ -161,4 +162,47 @@ export function verifyPokemonData(pokemon:PokemonData[], attacks:AttackData[], a
     } //END FOR
 
     return true;
+}
+
+export function generatePokemonSQL(data:PokemonData[]):string {
+    let buffer = `CREATE TABLE Pokemon(
+        number INTEGER PRIMARY KEY,
+        name: TEXT,
+        types: TEXT,
+        versions: TEXT,
+        abilities: TEXT,
+        moves: TEXT,
+        changes: TEXT
+    );`.replaceAll(/\s+/g, " ") + "\n";
+
+    for(let p of data){
+        buffer += `INSERT INTO Pokemon Values(
+            ${p.number},
+            "${p.name}",
+            "${JSON.stringify(p.types)}",
+            "${JSON.stringify(p.versions)}",
+            "${JSON.stringify(p.abilities)}",
+            "${JSON.stringify(p.moves)}",
+            "${JSON.stringify(p.changes)}
+        )`.replaceAll(/\s+/g, " ") + "\n";
+    }
+
+    return buffer;
+}
+
+export function generateAbilitiesSQL(data:Item[]):string {
+    let buffer = `CREATE TABLE Abilities(
+        id INTEGER PRIMARY KEY,
+        name: TEXT,
+        value: TEXT
+    );`.replaceAll(/\s+/g, " ") + "\n";
+
+    for(const item of data){
+        buffer += `INSERT INTO Abilities Values(
+            "${item.name}",
+            "${item.value}"
+        )`.replaceAll(/\s+/g, " ") + "\n";
+    }
+
+    return buffer;
 }
