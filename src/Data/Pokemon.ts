@@ -118,10 +118,10 @@ export async function fetchAllPokemonData():Promise<[PokemonData[], Record<strin
 export function verifyPokemonData(pokemon:PokemonData[], attacks:AttackData[], abilities:string[]):boolean {
     const check:Array<string> = attacks.map(a=>a.name);
 
-    for(let i=1; i<=pokemon.length; i++) {
+    for(let i=0; i<pokemon.length; i++) {
         const p = pokemon[i];
 
-        if(p.number !== i){
+        if(p.number !== i+1){
             console.error("Missing Pokmeon at: " + 1);
             return false;
         }
