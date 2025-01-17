@@ -3,7 +3,7 @@
  * Attack Data as Stored in Database.
  */
 import Attack, { fetchAttackDataList, ATTACK_GENERATIONS } from "../Serebii/Attack.js"
-
+import { getLastGen } from "../util.js"
 /** Attack Data 
  * 
  * Stored in Database
@@ -18,28 +18,7 @@ interface AttackData extends Attack{
 }
 export default AttackData;
 
-/** Get Last Gen
- * 
- * @param {AttackData} value 
- * @returns {number}
- */
-function getLastGen(value:AttackData):number {
-    let max:number = -1;
-    for(let gen in value.changes){
-        const num = Number(gen);
-        if(num > max)
-            //@ts-ignore
-            max = num;
-    }
 
-    if(max < 0) {
-        console.debug(JSON.stringify(value, null, 2));
-        throw new Error("Changes was empty!");
-    }
-        
-
-    return max;
-}
 
 /** Fetch All Attack Data
  * 
@@ -68,7 +47,7 @@ export async function fetchAllAttackData():Promise<AttackData[]>{
                 const update = data[name];
                 const record = masterData[name];
 
-                const last = getLastGen(record);
+                const last = getLastGen(record.changes);
                 record.changes[generation] = {};
 
 
