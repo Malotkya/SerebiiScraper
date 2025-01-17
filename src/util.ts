@@ -170,3 +170,42 @@ export class FileCache {
         }
     }
 }
+
+/** Get Last Gen
+ * 
+ * @param {Record} value 
+ * @returns {number}
+ */
+export function getLastGen(value:Record<number, unknown>):number {
+    let max:number = -1;
+    for(let gen in value){
+        const num = Number(gen)
+        if(num > max)
+            max = num;
+    }
+
+    if(max < 0) {
+        console.debug(JSON.stringify(value, null, 2));
+        throw new Error("Changes was empty!");
+    }
+
+    return max;
+}
+
+/** Is Array Equal
+ * 
+ * @param {Array} lhs 
+ * @param {Array} rhs 
+ * @returns {boolean}
+ */
+export function arrayEqual(lhs:string[], rhs:string[]):boolean {
+    if(lhs.length !== rhs.length)
+        return false;
+
+    for(const value of lhs){
+        if(!rhs.includes(value))
+            return false;
+    }
+
+    return true;
+}
