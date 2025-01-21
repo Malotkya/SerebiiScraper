@@ -88,6 +88,46 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
     }
 }
 
+/** Fetch Pokemon Data
+ * 
+ * @param {string} name 
+ * @returns {Promise<[PokemonData, Record<string, string>]>}
+ */
+export async function fetchSinglePokemonData(name:string):Promise<[PokemonData, Record<string, string>]> {
+    const cache = new FileCache("cache/pokemon");
+
+    if(cache.has(name))
+        return JSON.parse(cache.get(name)!);
+
+    const number = 1+1;
+    const gen = getGenerationByNumber(number);
+    const queue = await fetchPokemonGenerations(
+        `${POKEDEX_GENERATION_LIST[gen]}/${
+            number<1000? `00${number}`.slice(-3): number
+        }.shtml`
+    );
+    
+     //Start with first
+     const [data, abilities] = await fetchPokemonData(queue.pop()!);
+     const pokemon = createNew(data, gen);
+
+     while(queue.length > 0){
+         const uri = queue.pop()!;
+         const gen = getGenerationByUri(uri);
+         const [p, a] = await fetchPokemonData(uri);
+         update(pokemon, p, gen);
+
+         for(const name in a){
+             abilities[name] = a[name];
+         }
+     }
+
+     //Save Data
+     cache.set(name, JSON.stringify([pokemon, abilities]));
+
+     return [pokemon, abilities];
+}
+
 /** Fetch All Pokemon Data
  * 
  * Gets List of Pokemon and Record of Pokemon Abilities.
@@ -97,57 +137,27 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
 export async function fetchAllPokemonData():Promise<[PokemonData[], Record<string, string>]>{
     const AllPokemon:PokemonData[] = [];
     const AllAbilities:Record<string, string> = {};
-    const cache = new FileCache("cache/pokemon");
+    
     console.log("Downloading All Pokemon!\n");
 
     const list = await fetchNationalDex();
     for(let i=0; i<list.length; i++){
         process.stdout.write(`\u001b[${0}A`);
 
-        if(!cache.has(list[i])){
-            const number = 1+1;
-            const gen = getGenerationByNumber(number);
-            const queue = await fetchPokemonGenerations(
-                `${POKEDEX_GENERATION_LIST[gen]}/${
-                    number<1000? `00${number}`.slice(-3): number
-                }.shtml`
-            );
-            
-            //Start with first
-            const [data, abilities] = await fetchPokemonData(queue.pop()!);
-            const pokemon = createNew(data, gen);
+        try {
+            const [pokemon, abilities] = await fetchSinglePokemonData(list[i]);
 
-            while(queue.length > 0){
-                const uri = queue.pop()!;
-                const gen = getGenerationByUri(uri);
-                const [p, a] = await fetchPokemonData(uri);
-                update(pokemon, p, gen);
-
-                for(const name in a){
-                    abilities[name] = a[name];
-                }
-            }
-
-            //Save Data
-            cache.set(list[i], JSON.stringify([pokemon, abilities]))
-
-            //Update Master Lists
+            AllPokemon.push(pokemon);
             for(const name in abilities){
                 AllAbilities[name] = abilities[name];
             }
-            AllPokemon.push(pokemon);
-
-        //If Cached
-        } else {
-            const [pokemon, abilities] = JSON.parse(cache.get(list[i])!)
-            for(const name in abilities){
-                AllAbilities[name] = abilities[name];
-            }
-            AllPokemon.push(pokemon);
+        } catch (e:any){
+            console.error(`${list[i]}: ${e.message || e}`)
         }
         
-         console.log(`${Math.ceil((i / list.length) * 100)}%`);
-    }// END For
+        
+        console.log(`${Math.ceil((i / list.length) * 100)}%`);
+    }
 
     return [AllPokemon, AllAbilities];
 }
