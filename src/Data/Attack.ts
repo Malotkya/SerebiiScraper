@@ -4,7 +4,7 @@
  */
 import { missingAttacks } from "../fixes.js";
 import Attack, { fetchAttackDataList, ATTACK_GENERATIONS } from "../Serebii/Attack.js"
-import { getLastGen, simplify, stringifyForSQL } from "../util.js"
+import { getLastGen, simplify, stringifyForSQL, toSQLString } from "../util.js"
 import PokemonData from "./Pokemon.js";
 /** Attack Data 
  * 
@@ -140,13 +140,13 @@ export function generateAttackSQL(moves:AttackData[]):string {
 
     for(let m of moves){
         buffer.push(`INSERT INTO Moves Values(
-            "${m.name}",
-            "${m.category}"
-            "${m.type}",
+            ${toSQLString(m.name)},
+            ${toSQLString(m.category)}
+            ${toSQLString(m.type)},
             ${m.pp},
             ${m.power},
             ${m.accuracy},
-            "${m.effect}",
+            ${toSQLString(m.effect)},
             ${stringifyForSQL(m.changes)}
         );`.replaceAll(/\s+/g, " "));
     }

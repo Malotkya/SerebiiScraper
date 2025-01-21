@@ -238,3 +238,17 @@ export function removeHTML(value:string):string {
 export function stringifyForSQL(value:Object):string {
     return `'${JSON.stringify(value).replaceAll("'", "''")}'`
 }
+
+/** Javascirpt String to SQL String
+ * 
+ * Removes HTML, escapes special charicaters, and wraps in single quotes.
+ * 
+ * @param {string} value 
+ * @returns {string}
+ */
+export function toSQLString(value:string):string {
+    return `'${removeHTML(value)
+        .replaceAll(/ ?" ?/g, '"')
+        .replaceAll("'", "''")
+    }'`;
+}

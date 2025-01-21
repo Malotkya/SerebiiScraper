@@ -13,6 +13,7 @@ import Game, {
     Sword, Shield, BrilliantDiamond, ShiningPearl, Arceus,
     Scarlet, Violet
 } from "../Serebii/Game.js"
+import { toSQLString, stringifyForSQL } from "../util.js";
 
 type GameData = Record<string, Game>
 export default GameData;
@@ -44,10 +45,10 @@ export function generateGameSQL(data:GameData):string {
         const game = data[id];
         buffer += `INSERT INTO Games VALUES(
             ${id},
-            "${game.name}",
-            '${JSON.stringify(game.sprite)}',
+            ${toSQLString(game.name)},
+            ${stringifyForSQL(game.sprite)},
             ${game.generation},
-            '${JSON.stringify(game.modifiers)}'
+            ${stringifyForSQL(game.modifiers)}
         );`.replaceAll(/\s+/g, " ") + "\n"
     }
 

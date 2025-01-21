@@ -4,7 +4,7 @@
  */
 import {fetchItemDataList} from "../Serebii/Item.js";
 import {missingItems} from "../fixes.js";
-import { removeHTML } from "../util.js";
+import { toSQLString } from "../util.js";
 
 interface Item {
     name: string, 
@@ -29,8 +29,8 @@ export function generateItemSQL(data:Item[]):string {
 
     for(const item of data){
         buffer.push(`INSERT INTO Items Values(
-            "${item.name}",
-            "${removeHTML(item.value)}"
+            ${toSQLString(item.name)},
+            ${toSQLString(item.value)}
         );`.replaceAll(/\s+/g, " "));
     }
 
