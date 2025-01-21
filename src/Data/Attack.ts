@@ -111,11 +111,11 @@ export function verifyAttackData(data: AttackData[], pokemon: PokemonData[]):boo
             return false;
     
         //Skip Unique Torgue Moves
-        if(!move.name.includes("Torque"))
+        if(move.name.includes("Torque"))
             return false;
             
-        //Skip Struggle
-        return move.name !== "Struggle";
+        //Skip Struggle && Random move that no pokemon can learn???
+        return move.name !== "Struggle" && move.name !== "Meteoric Swarm";
     }).map(a=>a.name).filter(m=>!check.has(m));
 
     for(const error of list){
