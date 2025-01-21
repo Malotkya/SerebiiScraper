@@ -56,7 +56,7 @@ export function getGenerationByNumber(value:number):number {
 export function getGenerationByUri(value:string):number {
     value = value.toLocaleLowerCase();
 
-    for(let index=1; index<POKEDEX_GENERATION_LIST.length; index++) {
+    for(let index=POKEDEX_GENERATION_LIST.length-1; index>0; --index) {
         if(value.includes(POKEDEX_GENERATION_LIST[index]))
             return index;
     }
