@@ -225,5 +225,16 @@ export function arrayEqual(lhs:string[], rhs:string[]):boolean {
  * @returns {string}
  */
 export function removeHTML(value:string):string {
-    return value.replaceAll(/<[^<]*?>/g, "");
+    return value.replaceAll(/<[^<]*?>/g, "").trim();
+}
+
+/** Stringify Object For SQL
+ * 
+ * Stringifys object, escapes single quotes and wrappes string in single quotes.
+ * 
+ * @param {Object} value 
+ * @returns {string}
+ */
+export function stringifyForSQL(value:Object):string {
+    return `'${JSON.stringify(value).replaceAll("'", "''")}'`
 }
