@@ -178,6 +178,25 @@ function findSprites(list:NodeListOf<Element>):string|undefined {
     return undefined;
 }
 
+/** Fetch Pokemon Available Generations
+ * 
+ * @param {string} uri 
+ * @returns {Promise<string[]>}
+ */
+export async function fetchPokemonGenerations(uri:string):Promise<string[]> {
+    const {document} = await fetchDom(BASE_UTI+uri);
+
+    const curr = document.querySelector(".curr");
+    const table = curr?.closest("table");
+
+    if(table)
+        return Array.from(table.querySelectorAll("tr")).flatMap(row=>{
+            return <string[]>Array.from(row.querySelectorAll("td")).map(col=>col.querySelector("a")?.getAttribute("href")).filter(s=>s);
+    });
+    
+    throw new Error("Unable to find Generation Table!");
+}
+
 /** Fetch Pokemon Data
  * 
  * @param {string} uri 
