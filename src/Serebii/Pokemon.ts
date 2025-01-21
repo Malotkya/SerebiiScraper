@@ -194,7 +194,8 @@ export async function fetchPokemonGenerations(uri:string):Promise<string[]> {
             return <string[]>Array.from(row.querySelectorAll("td")).map(col=>col.querySelector("a")?.getAttribute("href")).filter(s=>s);
     });
     
-    throw new Error("Unable to find Generation Table!");
+    //throw new Error("Unable to find Generation Table!");
+    return [uri];
 }
 
 /** Fetch Pokemon Data
