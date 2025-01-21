@@ -4,6 +4,7 @@
  */
 import {fetchItemDataList} from "../Serebii/Item.js";
 import {missingItems} from "../fixes.js";
+import { removeHTML } from "../util.js";
 
 interface Item {
     name: string, 
@@ -20,18 +21,18 @@ export async function verifiedItemData():Promise<Item[]> {
 }
 
 export function generateItemSQL(data:Item[]):string {
-    let buffer = `CREATE TABLE Items(
+    const buffer = [`CREATE TABLE Items(
         id INTEGER PRIMARY KEY,
         name: TEXT,
         value: TEXT
-    );`.replaceAll(/\s+/g, " ") + "\n";
+    );`.replaceAll(/\s+/g, " ")];
 
     for(const item of data){
-        buffer += `INSERT INTO Items Values(
+        buffer.push(`INSERT INTO Items Values(
             "${item.name}",
-            "${item.value}"
-        )`.replaceAll(/\s+/g, " ") + "\n";
+            "${removeHTML(item.value)}"
+        );`.replaceAll(/\s+/g, " "));
     }
 
-    return buffer;
+    return buffer.join("\n");
 }

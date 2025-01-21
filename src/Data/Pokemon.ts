@@ -8,7 +8,7 @@ import { fetchNationalDex } from "../Serebii/index.js";
 import Pokemon, { fetchPokemonGenerations, fetchPokemonData } from "../Serebii/Pokemon.js";
 import { getGenerationByNumber, getGenerationByUri, POKEDEX_GENERATION_LIST } from "../Serebii/Generation.js";
 import Type from "../Serebii/Type.js";
-import { getLastGen, arrayEqual, simplify, FileCache } from "../util.js"
+import { getLastGen, arrayEqual, simplify, FileCache, removeHTML, stringifyForSQL } from "../util.js"
 import AttackData from "./Attack.js";
 import Item from "./Item.js";
 
@@ -250,12 +250,12 @@ export function generatePokemonSQL(data:PokemonData[]):string {
         buffer.push(`INSERT INTO Pokemon Values(
             ${p.number},
             "${p.name}",
-            "${JSON.stringify(p.types)}",
-            "${JSON.stringify(p.versions)}",
-            "${JSON.stringify(p.abilities)}",
-            "${JSON.stringify(p.moves)}",
-            "${JSON.stringify(p.changes)}
-        )`.replaceAll(/\s+/g, " "));
+            ${stringifyForSQL(p.types)},
+            ${stringifyForSQL(p.versions)},
+            ${stringifyForSQL(p.abilities)},
+            ${stringifyForSQL(p.moves)},
+            ${stringifyForSQL(p.changes)}
+        );`.replaceAll(/\s+/g, " "));
     }
 
     return buffer.join("\n");
@@ -276,8 +276,8 @@ export function generateAbilitiesSQL(data:Item[]):string {
     for(const item of data){
         buffer.push(`INSERT INTO Abilities Values(
             "${item.name}",
-            "${item.value}"
-        )`.replaceAll(/\s+/g, " "));
+            "${removeHTML(item.value)}"
+        );`.replaceAll(/\s+/g, " "));
     }
 
     return buffer.join("\n");

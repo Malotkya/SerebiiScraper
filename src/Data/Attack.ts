@@ -4,7 +4,7 @@
  */
 import { missingAttacks } from "../fixes.js";
 import Attack, { fetchAttackDataList, ATTACK_GENERATIONS } from "../Serebii/Attack.js"
-import { getLastGen, simplify } from "../util.js"
+import { getLastGen, simplify, stringifyForSQL } from "../util.js"
 import PokemonData from "./Pokemon.js";
 /** Attack Data 
  * 
@@ -126,7 +126,7 @@ export function verifyAttackData(data: AttackData[], pokemon: PokemonData[]):boo
 }
 
 export function generateAttackSQL(moves:AttackData[]):string {
-    let buffer = `CREATE TABLE Moves(
+    let buffer = [`CREATE TABLE Moves(
         id INTEGER PRIMARY KEY,
         name: TEXT,
         category: TEXT,
@@ -136,20 +136,20 @@ export function generateAttackSQL(moves:AttackData[]):string {
         accuracy: INTEGER,
         effect: TEXT,
         changes: TEXT
-    );`.replaceAll(/\s+/g, " ") + "\n";
+    );`.replaceAll(/\s+/g, " ")];
 
     for(let m of moves){
-        buffer += `INSERT INTO Moves Values(
-            '${m.name}',
-            '${m.category}'
-            '${m.type}',
+        buffer.push(`INSERT INTO Moves Values(
+            "${m.name}",
+            "${m.category}"
+            "${m.type}",
             ${m.pp},
             ${m.power},
             ${m.accuracy},
             "${m.effect}",
-            "${m.changes}"
-        );`.replaceAll(/\s+/g, " ") + "\n";
+            ${stringifyForSQL(m.changes)}
+        );`.replaceAll(/\s+/g, " "));
     }
 
-    return buffer;
+    return buffer.join("\n");
 }
