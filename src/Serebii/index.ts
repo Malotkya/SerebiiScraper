@@ -5,8 +5,9 @@
 import {RawData, fetchDom, FileCache} from "../util.js";
 
 export const BASE_UTI = "https://www.serebii.net/";
-export const NATIONAL_DEX = "/pokemon/nationalpokedex.shtml";
+export const NATIONAL_DEX = "pokemon/nationalpokedex.shtml";
 const BREAK_REGEX = /<br ?\/?>/;
+
 
 /** Parse Table Element
  * 
@@ -265,19 +266,4 @@ export async function fetchRegionPokedex(uri:string|readonly string[]):Promise<s
  */
 export function fetchNationalDex():Promise<string[]> {
     return fetchSinglePokedex(NATIONAL_DEX);
-}
-
-/** Convert Name To Number
- * 
- * @param {string} name 
- * @returns {Promise<string>}
- */
-export async function convertNameToNumber(name:string):Promise<string> {
-    const natDex = await fetchNationalDex();
-    const value = natDex.indexOf(name)+1;
-
-    if(value < 1000)
-        return `00${value}`.slice(-3);
-
-    return String(value);
 }
