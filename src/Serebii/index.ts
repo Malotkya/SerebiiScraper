@@ -127,7 +127,7 @@ function parseNextTableRows(rows:Element[], keys?:string[]):[string[], string[]]
  * @returns {RawData[]}
  */
 export function parseList(list:Element):RawData[] {
-    const rows = Array.from(list.querySelectorAll("tr"));
+    const rows = Array.from(list.querySelectorAll("tr")).filter(row=>row.closest("table") === list);
 
     const header = parseNextListRows(rows);
     const output:RawData[] = [];
@@ -171,7 +171,10 @@ function parseNextListRows(rows:Element[]):string[]{
     const output:string[] = [];
     
     for(let child of next.children) {
-        output.push(child.innerHTML);
+        const match = child.innerHTML.match(/<\/?table.*?>/);
+
+        if(match === null)
+            output.push(child.innerHTML);
     }
 
     return output;
