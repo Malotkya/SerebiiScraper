@@ -4,7 +4,7 @@
  * 
  * @author Alex Malotky
  */
-import { RawData, fetchDom } from "../util.js";
+import { RawData, fetchDom, removeHTML } from "../util.js";
 import Type, {getAllTypes} from "./Type.js"
 import { BASE_UTI, parseTable, parseList } from "./index.js";
 
@@ -38,6 +38,8 @@ function getName(value:string|undefined):string {
 function getNumber(value:string|undefined):number {
     if(value === undefined)
         throw new Error("Missing Number data!");
+
+    value = removeHTML(value);
 
     const match = value.match(/((?<=#)\d+|\d+)/)
     if(match === null)
@@ -94,6 +96,10 @@ function getMoveName(value:string):string {
     if(match)
         return getMoveName(match[1]);
 
+    const index = value.indexOf("<");
+    if(index > 0)
+        value = value.substring(0, index);
+
     return value.trim();
 }
 
@@ -107,7 +113,8 @@ function getMoves(list:RawData[]):string[] {
 
     for(const data of list){
         const value = getMoveName(data.get("Attack Name")!);
-        if(value !== "undefined" && !value.includes("!") && !value.includes("."))
+        
+        if(value !== "undefined" && !value.includes("!") && !value.includes(".") && (value !== value.toLocaleUpperCase())) //TODO test for all caps instead
             output.add(value);
     }
 
