@@ -48,6 +48,15 @@ export function sleep(n:number = 10) {
     });
 }
 
+/** Simplify String
+ * 
+ * @param {string} value 
+ * @returns {string}
+ */
+export function simplify(value:string):string {
+    return value.split("").map(c=>c.toLocaleLowerCase()).filter(c=>c.match(/\w/)).join("");
+}
+
 /** Fetch Dom 
  * 
  * Uses queue and cache.
@@ -208,4 +217,13 @@ export function arrayEqual(lhs:string[], rhs:string[]):boolean {
     }
 
     return true;
+}
+
+/** Remove HTML Tags from String
+ * 
+ * @param {string} value 
+ * @returns {string}
+ */
+export function removeHTML(value:string):string {
+    return value.replaceAll(/<[^<]*?>/g, "");
 }
