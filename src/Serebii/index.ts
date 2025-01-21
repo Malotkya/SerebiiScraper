@@ -235,7 +235,7 @@ export async function fetchSinglePokedex(uri:string):Promise<string[]> {
         const row =  Array.from(table.shift()!.children).map(e=>e.textContent!);
         
         if(row.length > index) {
-            const match = row[index].match(/[A-Za-zÀ-ÖØ-öø-ÿ♀♂\-:.' ]+/);
+            const match = row[index].match(/[0-9A-Za-zÀ-ÖØ-öø-ÿ♀♂\-:.' ]+/);
 
             if(match){
                 output.push(match[0].trim());
