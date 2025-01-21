@@ -208,7 +208,7 @@ export async function fetchAttackList(uri:string):Promise<[Record<string, string
 
             if(name){
                 if(name !== option.value) {
-                    output[name.trim()] = option.value;
+                    output[name.replaceAll(/(\(.*?\))/g, "").trim()] = option.value;
                     count++;
                 }
                     
