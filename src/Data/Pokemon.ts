@@ -93,13 +93,12 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
  * @param {string} name 
  * @returns {Promise<[PokemonData, Record<string, string>]>}
  */
-export async function fetchSinglePokemonData(name:string):Promise<[PokemonData, Record<string, string>]> {
+export async function fetchSinglePokemonData(name:string, number:number):Promise<[PokemonData, Record<string, string>]> {
     const cache = new FileCache("cache/pokemon");
 
     if(cache.has(name))
         return JSON.parse(cache.get(name)!);
 
-    const number = 1+1;
     const gen = getGenerationByNumber(number);
     const queue = await fetchPokemonGenerations(
         `${POKEDEX_GENERATION_LIST[gen]}/${
@@ -112,14 +111,14 @@ export async function fetchSinglePokemonData(name:string):Promise<[PokemonData, 
      const pokemon = createNew(data, gen);
 
      while(queue.length > 0){
-         const uri = queue.pop()!;
-         const gen = getGenerationByUri(uri);
-         const [p, a] = await fetchPokemonData(uri);
-         update(pokemon, p, gen);
+        const uri = queue.pop()!;
+        const gen = getGenerationByUri(uri);
+        const [p, a] = await fetchPokemonData(uri);
+        update(pokemon, p, gen);
 
-         for(const name in a){
-             abilities[name] = a[name];
-         }
+        for(const name in a){
+            abilities[name] = a[name];
+        }
      }
 
      //Save Data
@@ -137,15 +136,15 @@ export async function fetchSinglePokemonData(name:string):Promise<[PokemonData, 
 export async function fetchAllPokemonData():Promise<[PokemonData[], Record<string, string>]>{
     const AllPokemon:PokemonData[] = [];
     const AllAbilities:Record<string, string> = {};
-    
-    console.log("Downloading All Pokemon!\n");
+
+    console.log("");
 
     const list = await fetchNationalDex();
     for(let i=0; i<list.length; i++){
         process.stdout.write(`\u001b[${0}A`);
 
         try {
-            const [pokemon, abilities] = await fetchSinglePokemonData(list[i]);
+            const [pokemon, abilities] = await fetchSinglePokemonData(list[i], i+1);
 
             AllPokemon.push(pokemon);
             for(const name in abilities){
