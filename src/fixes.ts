@@ -4,6 +4,8 @@
  * 
  * @author Alex Malotky
  */
+import { fetchAttackData } from "./Serebii/Attack.js";
+import { createNew } from "./Data/Attack.js";
 
 export function missingItems():Record<string, string> {
     return {
@@ -16,4 +18,12 @@ export function missingItems():Record<string, string> {
         // https://www.serebii.net//itemdex/xspecial.shtml (404) - Not Found
         "X Special": "In battle, it raises the Pokémon's Special by 1 stage until the battle is over or the Pokémon is withdrawn."
     }
+}
+
+
+export async function missingAttacks() {
+    return [
+        //Shadow Blitz: https://www.serebii.net//attackdex/shadowattack.shtml (404) - Not Found
+        createNew( await fetchAttackData("attackdex/shadowblitz.shtml"), 3)
+    ]
 }
