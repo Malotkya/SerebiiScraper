@@ -236,15 +236,18 @@ export function verifyPokemonData(pokemon:PokemonData[], attacks:AttackData[], a
  * @returns {string}
  */
 export function generatePokemonSQL(data:PokemonData[]):string {
-    const buffer:string[] = [`CREATE TABLE Pokemon(
-        number INTEGER PRIMARY KEY,
-        name: TEXT,
-        types: TEXT,
-        versions: TEXT,
-        abilities: TEXT,
-        moves: TEXT,
-        changes: TEXT
-    );`.replaceAll(/\s+/g, " ")];
+    const buffer:string[] = [
+        "DROP TABLE IF EXISTS Pokemon;",
+        `CREATE TABLE Pokemon(
+            number INTEGER PRIMARY KEY,
+            name TEXT,
+            types TEXT,
+            versions TEXT,
+            abilities TEXT,
+            moves TEXT,
+            changes TEXT
+        );`.replaceAll(/\s+/g, " ")
+    ];
 
     for(let p of data){
         buffer.push(`INSERT INTO Pokemon Values(
@@ -267,14 +270,19 @@ export function generatePokemonSQL(data:PokemonData[]):string {
  * @returns {string}
  */
 export function generateAbilitiesSQL(data:Item[]):string {
-    const buffer = [`CREATE TABLE Abilities(
-        id INTEGER PRIMARY KEY,
-        name: TEXT,
-        value: TEXT
-    );`.replaceAll(/\s+/g, " ")];
+    const buffer = [
+        "DROP TABLE IF EXISTS Abilities;",
+        `CREATE TABLE Abilities(
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            value TEXT
+        );`.replaceAll(/\s+/g, " ")
+    ];
 
+    let id:number = 0;
     for(const item of data){
         buffer.push(`INSERT INTO Abilities Values(
+            ${++id},
             ${toSQLString(item.name)},
             ${toSQLString(item.value)}
         );`.replaceAll(/\s+/g, " "));

@@ -21,14 +21,19 @@ export async function verifiedItemData():Promise<Item[]> {
 }
 
 export function generateItemSQL(data:Item[]):string {
-    const buffer = [`CREATE TABLE Items(
-        id INTEGER PRIMARY KEY,
-        name: TEXT,
-        value: TEXT
-    );`.replaceAll(/\s+/g, " ")];
+    const buffer = [
+        "DROP TABLE IF EXISTS Items;",
+        `CREATE TABLE Items(
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            value TEXT
+        );`.replaceAll(/\s+/g, " ")
+    ];
 
+    let id:number = 0;
     for(const item of data){
         buffer.push(`INSERT INTO Items Values(
+            ${++id},
             ${toSQLString(item.name)},
             ${toSQLString(item.value)}
         );`.replaceAll(/\s+/g, " "));

@@ -12,6 +12,7 @@ import PokemonData from "./Pokemon.js";
  */
 interface AttackData extends Attack{
     changes: Record<number, {
+        category?:string
         pp?:number,
         power?:number,
         accuracy?:number,
@@ -33,6 +34,11 @@ export function createNew(data:Attack, generation:number):AttackData {
 function update(record:AttackData, update:Attack, generation:number): void {
     const last = getLastGen(record.changes);
     record.changes[generation] = {};
+
+    if(update.category !== record.category) {
+        record.changes[last].category = record.category;
+        record.category = update.category;
+    }
 
     if(update.pp !== record.pp) {
         record.changes[last].pp = record.pp;
@@ -126,22 +132,34 @@ export function verifyAttackData(data: AttackData[], pokemon: PokemonData[]):boo
 }
 
 export function generateAttackSQL(moves:AttackData[]):string {
-    let buffer = [`CREATE TABLE Moves(
-        id INTEGER PRIMARY KEY,
-        name: TEXT,
-        category: TEXT,
-        type: TEXT,
-        pp: INTEGER,
-        power: INTEGER,
-        accuracy: INTEGER,
-        effect: TEXT,
-        changes: TEXT
-    );`.replaceAll(/\s+/g, " ")];
+    let buffer = [
+        "DROP TABLE IF EXISTS Moves;",
+        `CREATE TABLE Moves(
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            category TEXT,
+            type TEXT,
+            pp INTEGER,
+            power INTEGER,
+            accuracy INTEGER,
+            effect TEXT,
+            changes TEXT
+        );`.replaceAll(/\s+/g, " ")
+    ];
 
+    const test = new Set<string>()
     for(let m of moves){
+        const id = simplify(m.name);
+        if(test.has(id)) {
+            throw new Error(id);
+        } else {
+            test.add(id);
+        }
+
         buffer.push(`INSERT INTO Moves Values(
+            ${toSQLString(id)},
             ${toSQLString(m.name)},
-            ${toSQLString(m.category)}
+            ${toSQLString(m.category)},
             ${toSQLString(m.type)},
             ${m.pp},
             ${m.power},

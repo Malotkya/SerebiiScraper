@@ -33,24 +33,27 @@ export async function verifiedGameData():Promise<GameData> {
 }
 
 export function generateGameSQL(data:GameData):string {
-    let buffer = `CREATE TABLE Games(
-        id TEXT PRIMARY KEY,
-        name: TEXT,
-        sprite: TEXT,
-        generation: INTEGER,
-        modifiers: TEXT
-    );`.replaceAll(/\s+/g, " ") + "\n";
+    const buffer = [
+        "DROP TABLE IF EXISTS Games;",
+        `CREATE TABLE Games(
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            sprite TEXT,
+            generation INTEGER,
+            modifiers TEXT
+        );`.replaceAll(/\s+/g, " ")
+    ];
 
     for(const id in data) {
         const game = data[id];
-        buffer += `INSERT INTO Games VALUES(
-            ${id},
+        buffer.push(`INSERT INTO Games VALUES(
+            ${toSQLString(id)},
             ${toSQLString(game.name)},
             ${stringifyForSQL(game.sprite)},
             ${game.generation},
             ${stringifyForSQL(game.modifiers)}
-        );`.replaceAll(/\s+/g, " ") + "\n"
+        );`.replaceAll(/\s+/g, " "));
     }
 
-    return buffer;
+    return buffer.join("\n");
 }
