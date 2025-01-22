@@ -1,4 +1,4 @@
-import { simplify, getUpdate } from "../../../util";
+import { simplify, getUpdate } from "../../util";
 
 async function getGeneration(value:string, DB:D1Database):Promise<number|null> {
     const num = Number(value);

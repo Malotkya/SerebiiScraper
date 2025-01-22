@@ -1,11 +1,11 @@
-import { simplify } from "../../../util";
+import { simplify } from "../../util";
 
 export const onRequestGet: PagesFunction<Env> = async(context) => {
     const gen = Number(context.params["Gen_Game"]);
     const game = simplify(<string>context.params["Gen_Game"]);
 
     if(isNaN(gen)) {
-        return new Response("Game Pokedex is currently not supported!", {status: 401});
+        return new Response("Game Pokedex is currently not supported!", {status: 401}); //TODO: Add this to API
     }
     
     if(gen < 1 || gen > 9)
