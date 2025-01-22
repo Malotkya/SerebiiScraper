@@ -14,3 +14,13 @@ interface Move {
     effect: string
     changes?: string
 }
+
+interface Pokemon {
+    number: number
+    name: string
+    versions: string
+    types: string
+    abilities: string
+    moves: stirng
+    changes?: string
+}
