@@ -45,7 +45,7 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     if(gen < 1 || gen > 9)
         return new Response(`Generation '${gen}' out of range!`, {status: 401});
 
-    const record = await queryPokemon(<string>context.params["Name"], context.env.DB);
+    const record = await queryPokemon(<string>context.params["Name_Num"], context.env.DB);
 
     if(typeof record === "string")
         return new Response(record, {status: 404});
