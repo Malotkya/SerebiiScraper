@@ -2,12 +2,10 @@
  * 
  * Generic Serebii Scrapping Functions
  */
-import {RawData, fetchDom, FileCache} from "../util.js";
+import {RawData} from "../util.js";
 
 export const BASE_UTI = "https://www.serebii.net/";
-export const NATIONAL_DEX = "pokemon/nationalpokedex.shtml";
 const BREAK_REGEX = /<br ?\/?>/;
-
 
 /** Parse Table Element
  * 
@@ -178,95 +176,4 @@ function parseNextListRows(rows:Element[]):string[]{
     }
 
     return output;
-}
-
-/** Find Name Index
- * 
- * @param {NodeListOF<Element>} row 
- * @returns {number}
- */
-function findNameIndex(row:NodeListOf<Element>):number {
-    for(let index=0; index<row.length; index++){
-        if(row[index].textContent?.toLowerCase().includes("name"))
-            return index;
-    }
-
-    return -1;
-}
-
-/** Find Name Table
- * 
- * @param {NodeListOf<Element>} list 
- * @returns {[NodeListOf<Element>|null, number]}
- */
-function findNameTable(list:NodeListOf<Element>):[Element[]|null, number]{
-    for(const table of list){
-        const rows = table.querySelectorAll("tr");
-        if(rows.length > 0){
-            const index = findNameIndex(rows[0].querySelectorAll("td"));
-            if(index >= 0)
-                return [Array.from(rows), index];
-        }
-    }
-
-    return [null, -1];
-}
-
-/** Fetch Single Pokedex
- * 
- * @param {string} uri 
- * @returns {Promise<string[]>}
- */
-export async function fetchSinglePokedex(uri:string):Promise<string[]> {
-    const cache = new FileCache();
-    if(cache.has(uri)) {
-        return JSON.parse(cache.get(uri)!);
-    }
-
-    const {document} = await fetchDom(BASE_UTI+uri);
-    const [table, index] = findNameTable(document.querySelectorAll("table"));
-
-    if(table === null)
-        throw new Error("Unable to find Table!");
-
-    //Skip First Rows
-    table.shift();
-    table.shift();
-
-    const output:string[] = [];
-    while(table.length > 0){
-        const row =  Array.from(table.shift()!.children).map(e=>e.textContent!);
-        
-        if(row.length > index) {
-            const match = row[index].match(/[0-9A-Za-zÀ-ÖØ-öø-ÿ♀♂\-:.' ]+/);
-
-            if(match){
-                output.push(match[0].trim());
-            }
-        }
-    }
-
-    cache.set(uri, JSON.stringify(output))
-    return output;
-}
-
-/** Fetch Region Pokedex
- * 
- * @param {string|string[]} uri 
- * @returns {Promise<string[]>}
- */
-export async function fetchRegionPokedex(uri:string|readonly string[]):Promise<string[]> {
-    if(typeof uri === "string") {
-        return fetchSinglePokedex(uri);
-    }
-
-    return (await Promise.all(uri.map(fetchSinglePokedex))).flat();
-}
-
-/** Fetch National Pokedex
- * 
- * @returns {Promise<string[]>}
- */
-export function fetchNationalDex():Promise<string[]> {
-    return fetchSinglePokedex(NATIONAL_DEX);
 }
