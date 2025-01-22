@@ -253,7 +253,7 @@ export function generatePokemonSQL(data:PokemonData[]):string {
     for(let p of data){
         buffer.push(`INSERT INTO Pokemon Values(
             ${p.number},
-            ${toSQLString(simplify(p.name))}
+            ${toSQLString(simplify(p.name))},
             ${toSQLString(p.name)},
             ${stringifyForSQL(p.types)},
             ${stringifyForSQL(p.versions)},

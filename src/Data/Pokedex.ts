@@ -51,7 +51,7 @@ export function verifyPokedexData(data:PokedexData, reference:string[]):boolean{
  */
 export function generatePokedexSQL(data:PokedexData):string {
     const buffer = [
-        "DROP TABLE IF EXISTS Pokedex",
+        "DROP TABLE IF EXISTS Pokedex;",
         `CREATE TABLE Pokedex(
             id TEXT PRIMARY KEY,
             value TEXT
