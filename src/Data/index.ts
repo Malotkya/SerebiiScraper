@@ -6,6 +6,8 @@ import Game, {verifiedGameData, generateGameSQL} from "./Game.js";
 import Item, {verifiedItemData, generateItemSQL} from "./Item.js";
 import Pokemon, {fetchAllPokemonData, verifyPokemonData, generateAbilitiesSQL, generatePokemonSQL} from "./Pokemon.js";
 import Attack, {fetchAllAttackData, verifyAttackData, generateAttackSQL} from "./Attack.js";
+import Pokedex, {fetchAllPokedexData, verifyPokedexData, generatePokedexSQL} from "./Pokedex.js";
+import { fetchNationalDex } from "../Serebii/Pokedex.js";
 import fs from "node:fs";
 
 interface Data {
@@ -14,6 +16,7 @@ interface Data {
     pokemon: Pokemon[],
     abilities: Item[],
     moves: Attack[]
+    pokedex:Pokedex
 }
 
 /** Scrape All Data
@@ -34,6 +37,9 @@ export async function scrapeData():Promise<Data> {
     const games = await verifiedGameData();
     const items = await verifiedItemData();
 
+    console.log("Scrapping All Pokedex Data:");
+    const pokedex = await fetchAllPokedexData(games);
+
     console.log("Verifying Pokemon Data:");
     if( verifyPokemonData(pokemon, moves, Object.keys(abilityMap)) === false) {
         fs.writeFileSync("error.json", JSON.stringify(pokemon, null, 2));
@@ -46,9 +52,14 @@ export async function scrapeData():Promise<Data> {
         fs.writeFileSync("error.json", JSON.stringify(moves, null, 2));
         throw new Error("Invalid Move Data!");
     }
-        
 
-    return {pokemon, abilities, moves, games, items}
+    console.log("Verifying Pokedex Data:");
+    if( verifyPokedexData(pokedex, await fetchNationalDex()) === false){
+        fs.writeFileSync("error.json", JSON.stringify(pokedex, null, 2));
+        throw new Error("Invalid Pokedex Data!");
+    }
+
+    return {pokemon, abilities, moves, games, items, pokedex}
 }
 
 /** Export All Data
@@ -60,7 +71,7 @@ export async function scrapeData():Promise<Data> {
  * @param {Attack[]} moves 
  * @returns {Promise<void>}
  */
-export function exportData(games: Game, items: Item[], pokemon:Pokemon[], abilites: Item[], moves:Attack[]):Promise<void>{
+export function exportData(games: Game, items: Item[], pokemon:Pokemon[], abilites: Item[], moves:Attack[], pokedex:Pokedex):Promise<void>{
     return new Promise((resolve, reject)=>{
         const sql:Array<string> = [];
 
@@ -69,6 +80,7 @@ export function exportData(games: Game, items: Item[], pokemon:Pokemon[], abilit
         sql.push(generatePokemonSQL(pokemon));
         sql.push(generateAbilitiesSQL(abilites));
         sql.push(generateAttackSQL(moves));
+        sql.push(generatePokedexSQL(pokedex));
 
         fs.writeFile("./data.sql", sql.join("\n"), (error)=>{
 

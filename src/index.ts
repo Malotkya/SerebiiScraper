@@ -3,10 +3,10 @@ import { scrapeData, exportData } from "./Data/index.js";
 (async()=>{
     try {
         console.log("Starting!");
-        const {games, items, pokemon, abilities, moves} = await scrapeData();
+        const {games, items, pokemon, abilities, moves, pokedex} = await scrapeData();
 
         console.log("Exporting Data!");
-        await exportData(games, items, pokemon, abilities, moves);
+        await exportData(games, items, pokemon, abilities, moves, pokedex);
 
         console.log("Complete!");
     } catch (e:any){
