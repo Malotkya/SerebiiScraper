@@ -4,7 +4,7 @@
  * 
  * @author Alex Malotky
  */
-import { fetchNationalDex } from "../Serebii/index.js";
+import { fetchNationalDex } from "../Serebii/Pokedex.js";
 import Pokemon, { fetchPokemonGenerations, fetchPokemonData } from "../Serebii/Pokemon.js";
 import { getGenerationByNumber, getGenerationByUri, POKEDEX_GENERATION_LIST } from "../Serebii/Generation.js";
 import Type from "../Serebii/Type.js";
@@ -240,6 +240,7 @@ export function generatePokemonSQL(data:PokemonData[]):string {
         "DROP TABLE IF EXISTS Pokemon;",
         `CREATE TABLE Pokemon(
             number INTEGER PRIMARY KEY,
+            simple TEXT,
             name TEXT,
             types TEXT,
             versions TEXT,
@@ -252,6 +253,7 @@ export function generatePokemonSQL(data:PokemonData[]):string {
     for(let p of data){
         buffer.push(`INSERT INTO Pokemon Values(
             ${p.number},
+            ${toSQLString(simplify(p.name))}
             ${toSQLString(p.name)},
             ${stringifyForSQL(p.types)},
             ${stringifyForSQL(p.versions)},
