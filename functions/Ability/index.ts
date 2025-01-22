@@ -4,10 +4,5 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     if(error)
         throw error;
 
-    const output:Record<string, string> = {};
-    for(const record of results){
-        output[<string>record["name"]] = <string>record["value"];
-    }
-
-    return Response.json(output);
+    return Response.json(results.map(r=>r["name"]));
 }
