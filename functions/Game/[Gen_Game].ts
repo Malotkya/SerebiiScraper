@@ -1,4 +1,4 @@
-import { simplify } from "../../util"
+import { simplify } from "../util"
 
 export const onRequestGet: PagesFunction<Env> = async(context) => {
     const gen  = Number(context.params["Gen_Game"])
