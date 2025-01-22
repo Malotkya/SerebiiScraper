@@ -14,9 +14,30 @@ async function getGeneration(value:string, DB:D1Database):Promise<number|null> {
     return <number>result["generation"];
 }
 
+async function queryPokemon(input:string, DB:D1Database):Promise<Pokemon|string> {
+    const number = Number(input);
+
+    if(isNaN(number)){
+        const result:Pokemon|null = await DB.prepare("SELECT * FROM Pokemon WHERE simple = ?")
+                    .bind(simplify(input)).first();
+
+        if(result === null)
+            return `Unable to find pokemon with name '${input}'!`;
+
+        return result;
+    }
+
+    const result:Pokemon|null = await DB.prepare("SELECT * FROM Pokemon WHERE number = ?")
+            .bind(number).first();
+
+    if(result === null)
+        return `Unable to find pokemon with number ${input}!`;
+
+    return result;
+}
+
 export const onRequestGet: PagesFunction<Env> = async(context) => {
     const gen = await getGeneration(<string>context.params["Gen_Game"], context.env.DB);
-    const input = simplify(<string>context.params["Name"]);
 
     if(gen === null)
         return new Response(`Unable to find game '${context.params["Gen_Game"]}'!`, {status: 404});
@@ -24,11 +45,10 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     if(gen < 1 || gen > 9)
         return new Response(`Generation '${gen}' out of range!`, {status: 401});
 
-    const record:Pokemon|null = await context.env.DB.prepare("SELECT * FROM Pokemon WHERE simple = ?")
-                    .bind(input).first();
+    const record = await queryPokemon(<string>context.params["Name"], context.env.DB);
 
-    if(record === null)
-        return new Response(`Unable to find Pokemon '${input}'!`, {status: 404});
+    if(typeof record === "string")
+        return new Response(record, {status: 404});
 
     const changes:Record<string, Pokemon> = JSON.parse(record["changes"]!);
 
