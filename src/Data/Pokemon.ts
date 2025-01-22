@@ -273,16 +273,16 @@ export function generateAbilitiesSQL(data:Item[]):string {
     const buffer = [
         "DROP TABLE IF EXISTS Abilities;",
         `CREATE TABLE Abilities(
-            id INTEGER PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             name TEXT,
             value TEXT
         );`.replaceAll(/\s+/g, " ")
     ];
 
-    let id:number = 0;
     for(const item of data){
+        const id = simplify(item.name);
         buffer.push(`INSERT INTO Abilities Values(
-            ${++id},
+            ${toSQLString(id)},
             ${toSQLString(item.name)},
             ${toSQLString(item.value)}
         );`.replaceAll(/\s+/g, " "));

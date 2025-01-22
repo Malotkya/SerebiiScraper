@@ -4,7 +4,7 @@
  */
 import {fetchItemDataList} from "../Serebii/Item.js";
 import {missingItems} from "../fixes.js";
-import { toSQLString } from "../util.js";
+import { simplify, toSQLString } from "../util.js";
 
 interface Item {
     name: string, 
@@ -24,16 +24,16 @@ export function generateItemSQL(data:Item[]):string {
     const buffer = [
         "DROP TABLE IF EXISTS Items;",
         `CREATE TABLE Items(
-            id INTEGER PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             name TEXT,
             value TEXT
         );`.replaceAll(/\s+/g, " ")
     ];
 
-    let id:number = 0;
     for(const item of data){
+        const id = simplify(item.name);
         buffer.push(`INSERT INTO Items Values(
-            ${++id},
+            ${toSQLString(id)},
             ${toSQLString(item.name)},
             ${toSQLString(item.value)}
         );`.replaceAll(/\s+/g, " "));
