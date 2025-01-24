@@ -5,7 +5,7 @@
  * @author Alex Malotky
  */
 
-type Modifier = Record<string, "string"|"number"|"boolean">
+type Modifier = Record<string, "string"|"number"|"boolean"|"Type">
 export default Modifier;
 
 export const GEN_ONE:Modifier   = {} as const;
@@ -27,5 +27,5 @@ export const GEN_NINE:Modifier = {
     ability: "string",
     nature: "string",
     item: "string",
-    
+    terraType: "Type"
 } as const;
