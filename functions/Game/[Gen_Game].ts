@@ -2,11 +2,11 @@ import { simplify, headers } from "../util"
 
 export const onRequestGet: PagesFunction<Env> = async(context) => {
     const gen  = Number(context.params["Gen_Game"])
-    const game = simplify(<string>context.params["Gen_Game"]);
 
     if(isNaN(gen)) {
+        const name = (<string>context.params["Gen_Game"]).replace(/Version/!, "");
         const record = await context.env.DB.prepare("SELECT * FROM Games WHERE id = ?")
-                            .bind(game).first();
+                            .bind(simplify(name)).first();
 
         if(record === null)
             return new Response(`Unable to find game '${context.params["Gen_Game"]}'!`, {status: 404, headers});
