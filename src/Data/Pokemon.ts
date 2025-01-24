@@ -22,6 +22,7 @@ interface PokemonData {
     changes: Record<number, {
         abilities?: string[],
         moves?: string[]
+        types?: Type[]
     }>
 }
 export default PokemonData;
@@ -85,6 +86,11 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
         if(!arrayEqual(record.abilities, data.abilities)){
             record.changes[last].abilities = record.abilities;
             record.abilities = data.abilities;
+        }
+
+        if(!arrayEqual(record.types, data.types)){
+            record.changes[last].types = record.types;
+            record.types = data.types;
         }
     }
 }
