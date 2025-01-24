@@ -1,4 +1,4 @@
-import { simplify, getUpdate } from "../../util";
+import { simplify, getUpdate, headers } from "../../util";
 
 export const onRequestGet: PagesFunction<Env> = async(context) => {
     const gen = Number(context.params["Gen"]);
@@ -10,13 +10,13 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     const value:Move|null = await context.env.DB.prepare("SELECT * FROM Moves WHERE id = ?").bind(id).first();
 
     if(value === null)
-        return new Response(`Unable to find move '${context.params["Name"]}'!`, {status: 404});
+        return new Response(`Unable to find move '${context.params["Name"]}'!`, {status: 404, headers});
 
     const changes:Record<number, Move> = JSON.parse(value["changes"]!);
     delete value["changes"];
 
     if(changes[gen] === undefined)
-        return new Response(`Unable to find move '${context.params["Name"]}' in ${gen}!`, {status: 404});
+        return new Response(`Unable to find move '${context.params["Name"]}' in ${gen}!`, {status: 404, headers});
 
     const name     = value["name"];
     const type     = value["type"];
@@ -26,5 +26,5 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     const accuracy = getUpdate(changes, gen, "accuracy") || value["accuracy"];
     const effect   = getUpdate(changes, gen, "effect")   || value["effect"];
 
-    return Response.json({name, category, type, pp, power, accuracy, effect});
+    return Response.json({name, category, type, pp, power, accuracy, effect}, {headers});
 }

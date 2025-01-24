@@ -1,4 +1,4 @@
-import { simplify } from "../../util";
+import { simplify, headers } from "../../util";
 
 export const onRequestGet: PagesFunction<Env> = async(context) => {
     const gen = Number(context.params["Gen_Game"]);
@@ -10,13 +10,13 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
                         .bind(game).first();
         
         if(result === null)
-            return new Response(`Unable to find game '${context.params["Gen_Game"]}'!`,{status: 404} );
+            return new Response(`Unable to find game '${context.params["Gen_Game"]}'!`, {status: 404, headers});
 
         return Response.json(JSON.parse(<string>result["value"]))
     }
     
     if(gen < 1 || gen > 9)
-        return new Response(`Generation '${gen}' out of range!`, {status: 401});
+        return new Response(`Generation '${gen}' out of range!`, {status: 401, headers});
 
     const {results, error} = await context.env.DB.prepare(`SELECT name FROM Pokemon WHERE changes LIKE '%"${gen}"%'`)
                                 .all();
@@ -24,5 +24,5 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     if(error)
         throw error;
 
-    return Response.json(results.map(r=>r["name"]));
+    return Response.json(results.map(r=>r["name"]), {headers});
 }

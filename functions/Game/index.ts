@@ -1,3 +1,5 @@
+import {headers} from "../util";
+
 export const onRequestGet: PagesFunction<Env> = async(context) => {
     const {results, error} = await context.env.DB.prepare("SELECT * FROM Games").all();
 
@@ -10,5 +12,5 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
         delete record["id"]
     }
 
-    return Response.json(results);
+    return Response.json(results, {headers});
 }

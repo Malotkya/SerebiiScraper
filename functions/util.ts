@@ -1,3 +1,12 @@
+/** /util
+ * 
+ * @author Alex Malotky
+ */
+
+export const headers = {
+    'Access-Control-Allow-Origin': "*",
+}
+
 /** Simplify String
  * 
  * @param {string} value 

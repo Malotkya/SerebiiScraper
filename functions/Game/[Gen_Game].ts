@@ -1,4 +1,4 @@
-import { simplify } from "../util"
+import { simplify, headers } from "../util"
 
 export const onRequestGet: PagesFunction<Env> = async(context) => {
     const gen  = Number(context.params["Gen_Game"])
@@ -9,13 +9,13 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
                             .bind(game).first();
 
         if(record === null)
-            return new Response(`Unable to find game '${context.params["Gen_Game"]}'!`, {status: 404});
+            return new Response(`Unable to find game '${context.params["Gen_Game"]}'!`, {status: 404, headers});
 
         record["sprite"]    = JSON.parse(<string>record["sprite"]);
         record["modifiers"] = JSON.parse(<string>record["modifiers"]);
         delete record["id"];
 
-        return Response.json(record);
+        return Response.json(record, {headers});
     }
 
     const {results, error} = await context.env.DB.prepare("SELECT * FROM Games WHERE generation = ?")
@@ -30,5 +30,6 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
         delete record["id"]
     }
 
-    return Response.json(results);
+    
+    return Response.json(results, {headers})
 }

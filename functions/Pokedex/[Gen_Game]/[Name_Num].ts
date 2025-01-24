@@ -1,4 +1,4 @@
-import { simplify, getUpdate } from "../../util";
+import { simplify, getUpdate, headers } from "../../util";
 
 async function getGeneration(value:string, DB:D1Database):Promise<number|null> {
     const num = Number(value);
@@ -40,10 +40,10 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     const gen = await getGeneration(<string>context.params["Gen_Game"], context.env.DB);
 
     if(gen === null)
-        return new Response(`Unable to find game '${context.params["Gen_Game"]}'!`, {status: 404});
+        return new Response(`Unable to find game '${context.params["Gen_Game"]}'!`, {status: 404, headers});
 
     if(gen < 1 || gen > 9)
-        return new Response(`Generation '${gen}' out of range!`, {status: 401});
+        return new Response(`Generation '${gen}' out of range!`, {status: 401, headers});
 
     const record = await queryPokemon(<string>context.params["Name_Num"], context.env.DB);
 
@@ -53,7 +53,7 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     const changes:Record<string, Pokemon> = JSON.parse(record["changes"]!);
 
     if(changes[gen] === undefined)
-        return new Response(`'${record["name"]}' does not exist in generation ${gen}!`, {status: 404});
+        return new Response(`'${record["name"]}' does not exist in generation ${gen}!`, {status: 404, headers});
 
     const name     = record["name"];
     const number   = record["number"];
@@ -62,5 +62,5 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     const abilities = getUpdate(changes, gen, "abilities") || JSON.parse(record["abilities"]);  //TODO: Fix Error Here
     const moves     = getUpdate(changes, gen, "moves")     || JSON.parse(record["moves"]);
 
-    return Response.json({name, number, versions, types, abilities, moves});
+    return Response.json({name, number, versions, types, abilities, moves}, {headers});
 }
