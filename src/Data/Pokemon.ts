@@ -8,7 +8,7 @@ import { fetchNationalDex } from "../Serebii/Pokedex.js";
 import Pokemon, { fetchPokemonGenerations, fetchPokemonData } from "../Serebii/Pokemon.js";
 import { getGenerationByNumber, getGenerationByUri, POKEDEX_GENERATION_LIST } from "../Serebii/Generation.js";
 import Type from "../Serebii/Type.js";
-import { getLastGen, arrayEqual, simplify, FileCache, toSQLString, stringifyForSQL } from "../util.js"
+import { getLastGen, arrayEqual, simplify, FileCache, toSQLString, stringifyForSQL, betterJsonStringify } from "../util.js"
 import AttackData from "./Attack.js";
 import Item from "./Item.js";
 
@@ -103,8 +103,9 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
 export async function fetchSinglePokemonData(name:string, number:number):Promise<[PokemonData, Record<string, string>]> {
     const cache = new FileCache("cache/pokemon");
 
-    if(cache.has(name))
+    if(cache.has(name)) {
         return JSON.parse(cache.get(name)!);
+    }
 
     const gen = getGenerationByNumber(number);
     const queue = await fetchPokemonGenerations(
@@ -113,11 +114,11 @@ export async function fetchSinglePokemonData(name:string, number:number):Promise
         }.shtml`
     );
     
-     //Start with first
-     const [data, abilities] = await fetchPokemonData(queue.pop()!);
-     const pokemon = createNew(data, gen);
+    //Start with first
+    const [data, abilities] = await fetchPokemonData(queue.pop()!);
+    const pokemon = createNew(data, gen);
 
-     while(queue.length > 0){
+    while(queue.length > 0){
         const uri = queue.pop()!;
         const gen = getGenerationByUri(uri);
         const [p, a] = await fetchPokemonData(uri);
@@ -126,12 +127,13 @@ export async function fetchSinglePokemonData(name:string, number:number):Promise
         for(const name in a){
             abilities[name] = a[name];
         }
-     }
+    }
 
-     //Save Data
-     cache.set(name, JSON.stringify([pokemon, abilities]));
+    
+    //Save Data
+    cache.set(name, betterJsonStringify([pokemon, abilities]));
 
-     return [pokemon, abilities];
+    return [pokemon, abilities];
 }
 
 /** Fetch All Pokemon Data

@@ -314,7 +314,7 @@ export const ShiningPearl:Game = {
     modifiers: GEN_EIGHT,
     pokedex: BRILLIANT_SHINING_POKEDEX
 }
-export const Arceus:Game = {
+export const LegendsArceus:Game = {
     name: "Legends: Arceus",
     sprite: GEN_EIGHT_SPRITE,
     generation: 8,

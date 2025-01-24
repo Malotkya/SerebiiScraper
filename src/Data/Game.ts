@@ -10,7 +10,7 @@ import Game, {
     Black, White, Black2, White2,
     X, Y, AlphaSapphire, OmegaRuby,
     Sun, Moon, UltraSun, UltraMoon, LetsGoEevee, LetsGoPikachu,
-    Sword, Shield, BrilliantDiamond, ShiningPearl, Arceus,
+    Sword, Shield, BrilliantDiamond, ShiningPearl, LegendsArceus,
     Scarlet, Violet
 } from "../Serebii/Game.js"
 import { toSQLString, stringifyForSQL, simplify } from "../util.js";
@@ -27,7 +27,7 @@ export async function verifiedGameData():Promise<GameData> {
         Black, White, Black2, White2,
         X, Y, AlphaSapphire, OmegaRuby,
         Sun, Moon, UltraSun, UltraMoon, LetsGoEevee, LetsGoPikachu,
-        Sword, Shield, BrilliantDiamond, ShiningPearl, Arceus,
+        Sword, Shield, BrilliantDiamond, ShiningPearl, LegendsArceus,
         Scarlet, Violet
     }
 }
