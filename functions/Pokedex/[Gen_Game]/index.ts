@@ -4,15 +4,17 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     const gen = Number(context.params["Gen_Game"]);
 
     if(isNaN(gen)) {
-        const game = simplify(<string>context.params["Gen_Game"]);
+        const name = (<string>context.params["Gen_Game"]).replace(/Version/!, "");
 
         const result = await context.env.DB.prepare("SELECT * FROM Pokedex WHERE id = ?")
-                        .bind(game).first();
+                        .bind(simplify(name)).first();
         
         if(result === null)
             return new Response(`Unable to find game '${context.params["Gen_Game"]}'!`, {status: 404, headers});
-
-        return Response.json(JSON.parse(<string>result["value"]))
+        return new Response(<string>result["value"], {headers:{
+            ...headers,
+            "Content-Type": "application/json"
+        }})
     }
     
     if(gen < 1 || gen > 9)
