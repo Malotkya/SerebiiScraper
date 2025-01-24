@@ -16,7 +16,8 @@
     "update:local":  "npx wrangler d1 execute serebii --local  --file=\"data.sql\"",
     "update:remote": "npx wrangler d1 execute serebii --remote --file=\"data.sql\"",
     "test": "npm run build && npm run scrape && npm run update:local",
-    "preview": "wrangler pages dev"
+    "preview": "wrangler pages dev",
+    "deploy": "wrangler pages deploy"
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20250121.0",
