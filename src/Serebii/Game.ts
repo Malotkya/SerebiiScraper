@@ -265,7 +265,7 @@ export const UltraMoon:Game = {
     pokedex: GEN_7_2_POKDEX
 }
 export const LetsGoPikachu:Game = {
-    name: "Let's Go Pickachu",
+    name: "Let's Go Pikachu",
     sprite: LETS_GO_SPRITES,
     generation: 7,
     region: "Kanto",
