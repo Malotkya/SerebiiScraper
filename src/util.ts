@@ -54,10 +54,20 @@ export function sleep(n:number = 10) {
  * @returns {string}
  */
 export function simplify(value:string):string {
-    return value 
-        .replaceAll(/♂/g, "M").replaceAll(/♀/g, "F")
+    return value.toLocaleLowerCase()
+        .replaceAll("1", "one")
+        .replaceAll("2", "two")
+        .replaceAll("3", "three")
+        .replaceAll("4", "four")
+        .replaceAll("5", "five")
+        .replaceAll("6", "six")
+        .replaceAll("7", "seven")
+        .replaceAll("8", "eight")
+        .replaceAll("9", "nine")
+        .replaceAll("0", "zero")
+        .replaceAll(/♂/g, "M")
+        .replaceAll(/♀/g, "F")
             .split("")
-            .map(c=>c.toLocaleLowerCase())
             .filter(c=>c.match(/\w/))
                 .join("");
 }
@@ -233,6 +243,50 @@ export function removeHTML(value:string):string {
     return value.replaceAll(/<[^<]*?>/g, "").trim();
 }
 
+/** Stringify Fix
+ * 
+ * Used to make stringify functions work better for my use case.
+ * 
+ * @param {any} value 
+ * @returns {any}
+ */
+function stringifyFix(value:any):any {
+    if(typeof value === "object") {
+
+        if(value instanceof Map){
+            const buffer:Record<any, any> = {}
+            for(const [k,v] of value.entries())
+                buffer[stringifyFix(k)] = stringifyFix(v);
+            return buffer;
+
+        } else if(value instanceof Set){
+            return Array.from(value).map(stringifyFix);
+
+        }else if(Array.isArray(value)){
+            return value.map(stringifyFix);
+
+        } else if(value !== null){
+            const buffer:Record<string, any> = {};
+            for(const name in value)
+                buffer[name] = stringifyFix(value[name]);
+            return buffer;
+        }
+    }
+
+    return value;
+}
+
+/** Better JSON Stringify
+ * 
+ * Calls Stringify Fix before JSON.stringify
+ * 
+ * @param {any} value 
+ * @returns {string}
+ */
+export function betterJsonStringify(value:any):string {
+    return JSON.stringify(stringifyFix(value));
+}
+
 /** Stringify Object For SQL
  * 
  * Stringifys object, escapes single quotes and wrappes string in single quotes.
@@ -241,16 +295,7 @@ export function removeHTML(value:string):string {
  * @returns {string}
  */
 export function stringifyForSQL(value:Object):string {
-    //Helpers for Useful Objects
-    if(value instanceof Set) {
-        value = Array.from(value);
-    } else if(value instanceof Map) {
-        const temp:Record<any, any> = {};
-        for(let [k, v] of value.entries())
-            temp[k] = v;
-        value = temp;
-    }
-    return `'${JSON.stringify(value).replaceAll("'", "''")}'`
+    return `'${JSON.stringify(stringifyFix(value)).replaceAll("'", "''")}'`
 }
 
 /** Javascirpt String to SQL String
