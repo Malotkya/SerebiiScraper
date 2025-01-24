@@ -241,6 +241,15 @@ export function removeHTML(value:string):string {
  * @returns {string}
  */
 export function stringifyForSQL(value:Object):string {
+    //Helpers for Useful Objects
+    if(value instanceof Set) {
+        value = Array.from(value);
+    } else if(value instanceof Map) {
+        const temp:Record<any, any> = {};
+        for(let [k, v] of value.entries())
+            temp[k] = v;
+        value = temp;
+    }
     return `'${JSON.stringify(value).replaceAll("'", "''")}'`
 }
 
