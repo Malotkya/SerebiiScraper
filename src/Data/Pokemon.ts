@@ -16,7 +16,7 @@ interface PokemonData {
     name:string,
     number: number,
     types:Type[],
-    versions: string[], 
+    versions: Set<string>, 
     abilities: string[],
     moves: string[],
     changes: Record<number, {
@@ -33,9 +33,10 @@ export default PokemonData;
  * @returns {PokemonData}
  */
 function createNew(data:Pokemon, generation:number):PokemonData {
-    const versions:string[] = [];
+    const versions:Set<string> = new Set();
     if(data.version)
-        versions.push(data.version)
+        versions.add(data.version);
+
     const changes:Record<number, any> = {};
     changes[generation] = {};
     
@@ -73,7 +74,7 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
         
 
         if(data.version){
-            record.versions.push(data.version);
+            record.versions.add(data.version);
         }
 
         if(!arrayEqual(record.moves, data.moves)){
