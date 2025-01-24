@@ -13,10 +13,20 @@ export const headers = {
  * @returns {string}
  */
 export function simplify(value:string):string {
-    return decodeURI(value) 
-        .replaceAll(/♂/g, "M").replaceAll(/♀/g, "F")
+    return decodeURI(value).toLocaleLowerCase()
+        .replaceAll("1", "one")
+        .replaceAll("2", "two")
+        .replaceAll("3", "three")
+        .replaceAll("4", "four")
+        .replaceAll("5", "five")
+        .replaceAll("6", "six")
+        .replaceAll("7", "seven")
+        .replaceAll("8", "eight")
+        .replaceAll("9", "nine")
+        .replaceAll("0", "zero")
+        .replaceAll(/♂/g, "M")
+        .replaceAll(/♀/g, "F")
             .split("")
-            .map(c=>c.toLocaleLowerCase())
             .filter(c=>c.match(/\w/))
                 .join("");
 }
