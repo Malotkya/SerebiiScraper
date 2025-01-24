@@ -13,7 +13,7 @@ export const headers = {
  * @returns {string}
  */
 export function simplify(value:string):string {
-    return value 
+    return decodeURI(value) 
         .replaceAll(/♂/g, "M").replaceAll(/♀/g, "F")
             .split("")
             .map(c=>c.toLocaleLowerCase())
