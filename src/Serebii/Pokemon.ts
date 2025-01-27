@@ -5,14 +5,14 @@
  * @author Alex Malotky
  */
 import { RawData, fetchDom, removeHTML } from "../util.js";
-import Type, {getAllTypes} from "./Type.js"
+import Type, {getAllVersionTypes} from "./Type.js"
 import { BASE_UTI, parseTable, parseList } from "./index.js";
 
 interface Pokemon {
     name: string,
     number: number,
     versions: string[],
-    types: Type[],
+    types: Record<string, Type[]>,
     abilities: string[],
     moves: string[]
 }
@@ -53,15 +53,15 @@ function getNumber(value:string|undefined):number {
  * @param {string} value 
  * @returns {string}
  */
-function getVersion(value:string|undefined):string[] {
+function getVersion(value:string|undefined):Record<string, string> {
     if(value === undefined)
-        return [];
+        return {};
 
     const match = value.matchAll(/<a.*?title="(.*?)" .*?data-key="\d+(.*?)".*?>/gi);
-    const output:string[] = [];
+    const output:Record<string, string> = {};
     for(const group of match){
         if(group[1].toLocaleLowerCase().includes("form") && group[2] !== "")
-            output.push(group[2]);
+            output[group[1].trim().split(" ")[0]] = group[2].trim()
     }
 
     return output;
@@ -263,12 +263,15 @@ export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<stri
             
             const name    = getName(rawData.get("Name") || rawData.find("Name")?.at(1));
             const number  = getNumber(rawData.get("No.") || rawData.find("No.")?.at(1));
-            const types   = getAllTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!));
-            const versions = getVersion(spriteData);
+            
             const moves   = getMoves(moveData);
-
+            const verionsMap = getVersion(spriteData);
             const abilitiesMap = getOrFindAbilities(rawData.find("Ability") || rawData.find("Abilities"), tables);
+            
+            const versions = Object.values(verionsMap)
             const abilities = Object.keys(abilitiesMap);
+
+            const types   = getAllVersionTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!), verionsMap);
 
             return [{name, number, versions, types, abilities, moves}, abilitiesMap];
         

@@ -4,6 +4,8 @@
  * 
  * @author Alex Malotky
  */
+import { softFind } from "../util.js";
+
 type Type = "Bug"|"Dark"|"Dragon"|"Electric"|"Fairy"|"Fighting"|"Fire"|"Flying"|"Ghost"|"Grass"|"Ground"|"Ice"|"Normal"|"Poison"|"Psychic"|"Rock"|"Steel"|"Water"|"???";
 export default Type;
 
@@ -64,6 +66,42 @@ export function getAllTypes(value:string|undefined):Type[] {
     if(output.length <= 0) {
         output.push("???");
     }
+
+    return output;
+}
+
+export function getAllVersionTypes(value:string|undefined, versions:Record<string, string> = {}):Record<string, Type[]> {
+    if(value === undefined)
+        throw new Error("Type data is missing!");
+
+    const list = Object.keys(versions);
+    if(list.length === 0) {
+        return {
+            "": getAllTypes(value)
+        }
+    }
+
+    const output:Record<string, Type[]> = {};
+    const types:Record<string, string> = {};
+    for(const line of value.split(/<\/?tr.*?>/)
+                .filter(s=>!s.includes("table") && s !== "")) {
+        
+        const match = line.match(/<td.*?>(.*?)<\/td>/i);
+        if(match === null)
+            throw new Error(`Failed to match: ${line.replaceAll(/\s+/g, " ")}`);
+
+        types[match[1]] = line;
+    }
+
+    for(const name of list){
+        try {
+            output[versions[name]] = getAllTypes(softFind(name, types));
+        } catch (e){
+            throw new Error(`There was a problem finding ${name} in:\n${value.replaceAll(/\s+/g, " ")}`);
+        }
+    }
+
+    output[""] = getAllTypes(types["Normal"]);
 
     return output;
 }

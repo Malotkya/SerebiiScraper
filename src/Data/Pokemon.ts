@@ -8,22 +8,20 @@ import { fetchNationalDex } from "../Serebii/Pokedex.js";
 import Pokemon, { fetchPokemonGenerations, fetchPokemonData } from "../Serebii/Pokemon.js";
 import { getGenerationByNumber, getGenerationByUri, POKEDEX_GENERATION_LIST } from "../Serebii/Generation.js";
 import Type from "../Serebii/Type.js";
-import { getLastGen, arrayEqual, simplify, FileCache, toSQLString, stringifyForSQL, betterJsonStringify } from "../util.js"
+import { getLastGen, arrayEqual, recordEqual, simplify, FileCache, toSQLString, stringifyForSQL, betterJsonStringify } from "../util.js"
 import AttackData from "./Attack.js";
 import Item from "./Item.js";
 
 interface PokemonData {
     name:string,
     number: number,
-    types:Type[],
-    versions: string[], 
+    types: Record<string, Type[]>,
     abilities: string[],
     moves: string[],
     changes: Record<number, {
         abilities?: string[],
         moves?: string[],
-        types?: Type[],
-        versions?: string[]
+        types?: Record<string, Type[]>,
     }>
 }
 export default PokemonData;
@@ -69,12 +67,6 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
     //Create Next Generation
     } else {
         record.changes[generation] = {};
-        
-
-        if(!arrayEqual(record.versions, data.versions)){
-            record.changes[last].versions = record.versions;
-            record.versions = data.versions;
-        }
 
         if(!arrayEqual(record.moves, data.moves)){
             record.changes[last].moves = record.moves;
@@ -86,7 +78,7 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
             record.abilities = data.abilities;
         }
 
-        if(!arrayEqual(record.types, data.types)){
+        if(!recordEqual(record.types, data.types)){
             record.changes[last].types = record.types;
             record.types = data.types;
         }
@@ -179,7 +171,6 @@ export async function fetchAllPokemonData():Promise<[PokemonData[], Record<strin
             console.error(`${list[i]}: ${e.message || e}`)
         }
         
-        
         console.log(`${Math.ceil((i / list.length) * 100)}%`);
     }
 
@@ -268,7 +259,6 @@ export function generatePokemonSQL(data:PokemonData[]):string {
             simple TEXT,
             name TEXT,
             types TEXT,
-            versions TEXT,
             abilities TEXT,
             moves TEXT,
             changes TEXT
@@ -281,7 +271,6 @@ export function generatePokemonSQL(data:PokemonData[]):string {
             ${toSQLString(simplify(p.name))},
             ${toSQLString(p.name)},
             ${stringifyForSQL(p.types)},
-            ${stringifyForSQL(p.versions)},
             ${stringifyForSQL(p.abilities)},
             ${stringifyForSQL(p.moves)},
             ${stringifyForSQL(p.changes)}
