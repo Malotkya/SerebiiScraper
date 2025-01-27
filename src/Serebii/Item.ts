@@ -64,7 +64,7 @@ function getData(list:NodeListOf<Element>, name:string):string {
                 throw null;
             }
 
-            const value = rawData.find(name);
+            const value = rawData.find(name)?.at(1);
 
             if(value !== undefined)
                 return value;
