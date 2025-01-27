@@ -106,7 +106,7 @@ function getAbilities(value:string[]|undefined):Record<string, string> {
         return {};
 
     const output:Record<string, string> = {};
-    if(value[0].match(/ability:/i)) {
+    if(value[0].match(/ability:/i) !== null && value[0].indexOf("&") < 0) {
         const key = removeHTML(value[0].substring(value[0].indexOf(":")+1)).trim()
         output[key] = value[1].trim();
     } else {
