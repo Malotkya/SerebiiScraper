@@ -95,6 +95,23 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
     }
 }
 
+function updateAbility(current:Item|undefined, name:string, value:string):Item {
+    name = name.charAt(0).toLocaleUpperCase() + name.substring(1)
+        .replaceAll(/( ?)([A-Z])/g, " $2")
+        .replaceAll(/( [a-z])/g, "$1".toLocaleUpperCase());
+
+    if(current){
+        if(current.name.length < name.length)
+            current.name = name;
+
+        current.value = value;
+
+        return current;
+    }
+
+    return {name, value};
+}
+
 /** Fetch Pokemon Data
  * 
  * @param {string} name 
@@ -142,9 +159,9 @@ export async function fetchSinglePokemonData(name:string, number:number):Promise
  * 
  * @returns {Promise<[PokemonData[], Record<string, string>]>}
  */
-export async function fetchAllPokemonData():Promise<[PokemonData[], Record<string, string>]>{
+export async function fetchAllPokemonData():Promise<[PokemonData[], Record<string, Item>]>{
     const AllPokemon:PokemonData[] = [];
-    const AllAbilities:Record<string, string> = {};
+    const AllAbilities:Record<string, Item> = {};
 
     console.log("");
 
@@ -157,7 +174,8 @@ export async function fetchAllPokemonData():Promise<[PokemonData[], Record<strin
 
             AllPokemon.push(pokemon);
             for(const name in abilities){
-                AllAbilities[name] = abilities[name];
+                const id = simplify(name)
+                AllAbilities[id] = updateAbility(AllAbilities[id], name, abilities[name]);
             }
         } catch (e:any){
             console.error(`${list[i]}: ${e.message || e}`)
@@ -202,7 +220,7 @@ export function verifyPokemonData(pokemon:PokemonData[], attacks:AttackData[], a
         }
 
         for(const a of p.abilities) {
-            if(!abilities.includes(a)) {
+            if(!abilities.includes(simplify(a))) {
                 console.error(`Missing Ability ${a} on ${p.name}!`);
                 return false;
             }
@@ -218,7 +236,7 @@ export function verifyPokemonData(pokemon:PokemonData[], attacks:AttackData[], a
         for(const g in p.changes) {
             if(p.changes[g].abilities){
                 for(const a of p.changes[g].abilities) {
-                    if(!abilities.includes(a)) {
+                    if(!abilities.includes(simplify(a))) {
                         console.error(`Missing Ability ${a} at ${g} on ${p.name}!`);
                         return false;
                     }
@@ -277,10 +295,10 @@ export function generatePokemonSQL(data:PokemonData[]):string {
 
 /** Generate Abilities SQL
  * 
- * @param {Item[]} data 
+ * @param { Record<string, Item>} data 
  * @returns {string}
  */
-export function generateAbilitiesSQL(data:Item[]):string {
+export function generateAbilitiesSQL(data: Record<string, Item>):string {
     const buffer = [
         "DROP TABLE IF EXISTS Abilities;",
         `CREATE TABLE Abilities(
@@ -290,8 +308,8 @@ export function generateAbilitiesSQL(data:Item[]):string {
         );`.replaceAll(/\s+/g, " ")
     ];
 
-    for(const item of data){
-        const id = simplify(item.name);
+    for(const id in data){
+        const item = data[id];
         buffer.push(`INSERT INTO Abilities Values(
             ${toSQLString(id)},
             ${toSQLString(item.name)},

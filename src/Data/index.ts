@@ -14,7 +14,7 @@ interface Data {
     games:Game
     items:Item[],
     pokemon: Pokemon[],
-    abilities: Item[],
+    abilities: Record<string, Item>,
     moves: Attack[]
     pokedex:Pokedex
 }
@@ -25,10 +25,7 @@ interface Data {
  */
 export async function scrapeData():Promise<Data> {
     console.log("Scrapping All Pokemon Data:");
-    const [pokemon, abilityMap] = await fetchAllPokemonData();
-
-    console.log("Extracting Ability Data:")
-    const abilities = Object.keys(abilityMap).map((name)=>{ return {name, value: abilityMap[name]}});
+    const [pokemon, abilities] = await fetchAllPokemonData();
 
     console.log("Scrapping All Move Data:");
     const moves = await fetchAllAttackData();
@@ -41,7 +38,7 @@ export async function scrapeData():Promise<Data> {
     const pokedex = await fetchAllPokedexData(games);
 
     console.log("Verifying Pokemon Data:");
-    if( verifyPokemonData(pokemon, moves, Object.keys(abilityMap)) === false) {
+    if( verifyPokemonData(pokemon, moves, Object.keys(abilities)) === false) {
         fs.writeFileSync("error.json", JSON.stringify(pokemon, null, 2));
         throw new Error("Invalid Pokemon Data!");
     }
@@ -67,11 +64,11 @@ export async function scrapeData():Promise<Data> {
  * @param {Games} games 
  * @param {Item[]} items 
  * @param {Pokemon[]} pokemon 
- * @param {Items[]} abilites 
+ * @param {Record<string, Item>} abilites 
  * @param {Attack[]} moves 
  * @returns {Promise<void>}
  */
-export function exportData(games: Game, items: Item[], pokemon:Pokemon[], abilites: Item[], moves:Attack[], pokedex:Pokedex):Promise<void>{
+export function exportData(games: Game, items: Item[], pokemon:Pokemon[], abilites: Record<string, Item>, moves:Attack[], pokedex:Pokedex):Promise<void>{
     return new Promise((resolve, reject)=>{
         const sql:Array<string> = [];
 
