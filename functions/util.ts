@@ -36,28 +36,32 @@ export function simplify(value:string):string {
  * @param {unknown} value 
  * @returns {boolean}
  */
-export function isEmpty(value:unknown):boolean {
+function emptyWrapper<T extends unknown>(value:T):T|undefined {
     switch(typeof value){
         case "object":
             if(Array.isArray(value)){
-                return value.length === 0;
+                if(value.length > 0)
+                    return value
             } else if(value !== null) {
                 for(const n in value)
-                    return false;
+                    return value;
             }
-        case "undefined":
-            return true;
+            break;
 
         case "string":
-            return value === "";
+            if(value !== "")
+                return value;
+            break;
 
         case "function":
         case "bigint":
         case "symbol":
         case "boolean":
         case "number":
-            return false;
+            return value;
     }
+
+    return undefined
 }
 
 /** Get Next Number
@@ -108,5 +112,5 @@ export function getUpdate<T, K extends keyof T>(changes:Record<number, T>, curre
 
     const value = getUpdate(changes, getNext(changes, current), name)
 
-    return changes[current][name] || value;
+    return emptyWrapper(changes[current][name]) || value;
 }
