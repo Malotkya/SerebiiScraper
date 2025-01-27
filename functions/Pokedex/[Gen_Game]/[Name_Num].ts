@@ -58,7 +58,7 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     const name     = record["name"];
     const number   = record["number"];
     const versions = JSON.parse(record["versions"]);
-    const types    = JSON.parse(record["types"]);
+    const types    = getUpdate(changes, gen, "types")      || JSON.parse(record["types"]);
     const abilities = getUpdate(changes, gen, "abilities") || JSON.parse(record["abilities"]);  //TODO: Fix Error Here
     const moves     = getUpdate(changes, gen, "moves")     || JSON.parse(record["moves"]);
 
