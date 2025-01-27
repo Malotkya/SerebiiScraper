@@ -66,21 +66,57 @@ function getVersion(value:string|undefined):string|undefined {
     return undefined;
 }
 
+function getOrFindAbilities(value:[string, string]|undefined, tables:NodeListOf<HTMLTableElement>):Record<string, string> {
+    if(value === undefined)
+        value =  findAbilitiesTableData(tables);
+
+    return getAbilities(value);
+}
+
+function findAbilitiesTableData(tables:NodeListOf<HTMLTableElement>):[string, string]|undefined{
+    for(const table of tables) {
+        try {
+            let data:RawData;
+            try {
+                data = parseTable(table);
+            } catch (e){
+                throw null;
+            }
+
+            const value = data.find("Abilities");
+            if(value)
+                return value;
+        } catch (e){
+            if(e !== null)
+                throw e;
+        }
+    }
+
+    //throw new Error("Unable to find Abilities Table!");
+    return undefined;
+}
+
 /** Get Abilities
  * 
  * @param {string} value 
  * @returns {Record<string, string>}
  */
-function getAbilities(value:string|undefined):Record<string, string> {
+function getAbilities(value:string[]|undefined):Record<string, string> {
     if(value === undefined)
         return {};
 
     const output:Record<string, string> = {};
-    const match = value.matchAll(/<a .*?><b>(.*?)<\/b><\/a>:(.*?)(<br\/?>|$)/gi);
+    if(value[0].match(/ability:/i)) {
+        const key = removeHTML(value[0].substring(value[0].indexOf(":")+1)).trim()
+        output[key] = value[1].trim();
+    } else {
+        const match = value[1].matchAll(/<a .*?><b>(.*?)<\/b><\/a>:(.*?)(<br\/?>|$)/gi);
 
-    for(const group of match){
-        output[group[1]] = group[2];
+        for(const group of match){
+            output[group[1]] = group[2].trim();
+        }
     }
+    
 
     return output;
 }
@@ -224,13 +260,13 @@ export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<stri
                 throw null;
             }
             
-            const name    = getName(rawData.get("Name") || rawData.find("Name"));
-            const number  = getNumber(rawData.get("No.") || rawData.find("No."));
+            const name    = getName(rawData.get("Name") || rawData.find("Name")?.at(1));
+            const number  = getNumber(rawData.get("No.") || rawData.find("No.")?.at(1));
             const types   = getAllTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!));
             const version = getVersion(spriteData);
             const moves   = getMoves(moveData);
 
-            const abilitiesMap = getAbilities(rawData.get("Ability") || rawData.find("Abilities"));
+            const abilitiesMap = getOrFindAbilities(rawData.find("Ability") || rawData.find("Abilities"), tables);
             const abilities = Object.keys(abilitiesMap);
 
             return [{name, number, version, types, abilities, moves}, abilitiesMap];
