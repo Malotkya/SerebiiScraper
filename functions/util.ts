@@ -31,10 +31,12 @@ export function simplify(value:string):string {
                 .join("");
 }
 
-/** Is Unknown Empty
+/** Empty Wrapper
  * 
- * @param {unknown} value 
- * @returns {boolean}
+ * returns undefiend if the value is determined to be empty.
+ * 
+ * @param {any} value 
+ * @returns {any|undefined}
  */
 function emptyWrapper<T extends unknown>(value:T):T|undefined {
     switch(typeof value){
