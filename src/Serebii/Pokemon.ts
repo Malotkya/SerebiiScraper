@@ -11,7 +11,7 @@ import { BASE_UTI, parseTable, parseList } from "./index.js";
 interface Pokemon {
     name: string,
     number: number,
-    version?: string,
+    versions: string[],
     types: Type[],
     abilities: string[],
     moves: string[]
@@ -53,17 +53,18 @@ function getNumber(value:string|undefined):number {
  * @param {string} value 
  * @returns {string}
  */
-function getVersion(value:string|undefined):string|undefined {
+function getVersion(value:string|undefined):string[] {
     if(value === undefined)
-        return undefined;
+        return [];
 
     const match = value.matchAll(/<a.*?title="(.*?)" .*?data-key="\d+(.*?)".*?>/gi);
+    const output:string[] = [];
     for(const group of match){
         if(group[1].toLocaleLowerCase().includes("form") && group[2] !== "")
-            return group[2];
+            output.push(group[2]);
     }
 
-    return undefined;
+    return output;
 }
 
 function getOrFindAbilities(value:[string, string]|undefined, tables:NodeListOf<HTMLTableElement>):Record<string, string> {
@@ -263,13 +264,13 @@ export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<stri
             const name    = getName(rawData.get("Name") || rawData.find("Name")?.at(1));
             const number  = getNumber(rawData.get("No.") || rawData.find("No.")?.at(1));
             const types   = getAllTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!));
-            const version = getVersion(spriteData);
+            const versions = getVersion(spriteData);
             const moves   = getMoves(moveData);
 
             const abilitiesMap = getOrFindAbilities(rawData.find("Ability") || rawData.find("Abilities"), tables);
             const abilities = Object.keys(abilitiesMap);
 
-            return [{name, number, version, types, abilities, moves}, abilitiesMap];
+            return [{name, number, versions, types, abilities, moves}, abilitiesMap];
         
         } catch (e){
             //Throw any error that's not invalid table.

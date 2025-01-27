@@ -16,13 +16,14 @@ interface PokemonData {
     name:string,
     number: number,
     types:Type[],
-    versions: Set<string>, 
+    versions: string[], 
     abilities: string[],
     moves: string[],
     changes: Record<number, {
         abilities?: string[],
-        moves?: string[]
-        types?: Type[]
+        moves?: string[],
+        types?: Type[],
+        versions?: string[]
     }>
 }
 export default PokemonData;
@@ -34,10 +35,6 @@ export default PokemonData;
  * @returns {PokemonData}
  */
 function createNew(data:Pokemon, generation:number):PokemonData {
-    const versions:Set<string> = new Set();
-    if(data.version)
-        versions.add(data.version);
-
     const changes:Record<number, any> = {};
     changes[generation] = {};
     
@@ -45,7 +42,7 @@ function createNew(data:Pokemon, generation:number):PokemonData {
     const moves = data.moves.map(normalizeString);
 
     return {
-        ...data, versions, changes, abilities, moves
+        ...data, changes, abilities, moves
     }
 }
 
@@ -74,8 +71,9 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
         record.changes[generation] = {};
         
 
-        if(data.version){
-            record.versions.add(data.version);
+        if(!arrayEqual(record.versions, data.versions)){
+            record.changes[last].versions = record.versions;
+            record.versions = data.versions;
         }
 
         if(!arrayEqual(record.moves, data.moves)){
