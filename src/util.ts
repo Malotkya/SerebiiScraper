@@ -88,7 +88,12 @@ export async function fetchDom(url:string):Promise<DOMWindow> {
  * Uses a hash-like to cleanse and estimate the key value
  * to store the raw html data from scraping.
  */
-export class RawData extends Map<string, string> {
+export class RawData {
+    private _data:Map<string, [string, string]>;
+
+    constructor(){
+        this._data = new Map();
+    }
 
     /** Clense Key
      * 
@@ -110,8 +115,10 @@ export class RawData extends Map<string, string> {
      * @param {string} key 
      * @returns {string|undefined}
      */
-    get(key:string) {
-        return super.get(RawData.clense(key))
+    get(key:string):string|undefined{
+        const value = this._data.get(RawData.clense(key));
+        if(value)
+            return value[1];
     }
 
     /** Set Data
@@ -120,8 +127,8 @@ export class RawData extends Map<string, string> {
      * @param {string} value 
      * @returns {this}
      */
-    set(key:string, value:string) {
-        return super.set(RawData.clense(key), value || "");
+    set(key:string, value:string):void{
+        this._data.set(RawData.clense(key), [key, value]);
     }
 
     /** Find Data
@@ -129,9 +136,9 @@ export class RawData extends Map<string, string> {
      * @param {string} key
      * @returns {string|undefined} 
      */
-    find(key:string):string|undefined{
+    find(key:string):[string, string]|undefined{
         key = RawData.clense(key);
-        for(const [name, value] of super.entries()){
+        for(const [name, value] of this._data.entries()){
             if(name.includes(key)) {
                 return value;
             }
@@ -146,8 +153,8 @@ export class RawData extends Map<string, string> {
     debug(){
         const data:any = {};
 
-        for(let [key, value] of this.entries()){
-            data[key] = value.replace(/\s+/g, " ");
+        for(let [clense, [key, value]] of this._data.entries()){
+            data[clense] = [key, value.replace(/\s+/g, " ")];
         }
 
         console.debug(JSON.stringify(data, null, 2));
