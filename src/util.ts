@@ -241,6 +241,70 @@ export function arrayEqual(lhs:string[], rhs:string[]):boolean {
     return true;
 }
 
+/** Is Record Equal
+ * 
+ * @param {Array} lhs 
+ * @param {Array} rhs 
+ * @returns {boolean}
+ */
+export function recordEqual(lhs:Record<string, unknown>, rhs:Record<string, unknown>):boolean {
+    const list:string[] = Object.keys(lhs);
+
+    if(list.length !== Object.keys(rhs).length)
+        return false;
+
+    for(const name of list){
+        const leftValue = lhs[name];
+        const rightValue = rhs[name];
+
+        const type = typeof leftValue;
+        if(type !== typeof rightValue)
+            return false;
+        
+        switch(type){
+            case "object":
+                if(Array.isArray(leftValue)){
+                    if(!Array.isArray(rightValue))
+                        return false;
+
+                    if(!arrayEqual(leftValue, rightValue))
+                        return false;
+                } else if( leftValue && rightValue ) {
+                    if(!recordEqual(<any>leftValue, <any>rightValue))
+                        return false;
+                }
+            break;
+
+            case "undefined":
+            break;
+
+            case "function":
+                return false;
+
+            default:
+                if(leftValue !== rightValue)
+                    return false;
+        }
+    }
+
+    return true;
+}
+
+/** Soft Find
+ * 
+ * @param {string} value 
+ * @param {Record<string, any>} data 
+ * @returns {any}
+ */
+export function softFind<T>(value:string, data:Record<string, T>):T|undefined{
+    for(const name in data){
+        if(name.includes(value))
+            return data[name];
+    }
+
+    return undefined;
+}
+
 /** Remove HTML Tags from String
  * 
  * @param {string} value 
