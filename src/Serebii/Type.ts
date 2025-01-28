@@ -83,15 +83,25 @@ export function getAllVersionTypes(value:string|undefined, versions:Record<strin
 
     const output:Record<string, Type[]> = {};
     const types:Record<string, string> = {};
-    for(const line of value.split(/<\/?tr.*?>/)
-                .filter(s=>!s.includes("table") && s !== "")) {
-        
-        const match = line.match(/<td.*?>(.*?)<\/td>/i);
-        if(match === null)
-            throw new Error(`Failed to match: ${line.replaceAll(/\s+/g, " ")}`);
+    try {
+        for(const line of value.split(/<\/?tr.*?>/)
+            .filter(s=>!s.includes("table") && s !== "")) {
+    
+            const match = line.match(/<td.*?>(.*?)<\/td>/i);
+            if(match === null)
+                throw new Error(`Failed to match: ${line.replaceAll(/\s+/g, " ")}`);
 
-        types[match[1]] = line;
+            const subLines = line.split("</td>");
+            subLines.shift();
+            types[match[1]] = subLines.join("");
+        }
+    } catch (e){
+        //Match Failed (Example Deoxys : Attack/Deffence/Speed Forms)
+        for(const name of list){
+            types[name] = value;
+        }
     }
+    
 
     for(const name of list){
         try {
@@ -101,7 +111,7 @@ export function getAllVersionTypes(value:string|undefined, versions:Record<strin
         }
     }
 
-    output[""] = getAllTypes(types["Normal"]);
+    output[""] = getAllTypes(types["Normal"] || value);
 
     return output;
 }
