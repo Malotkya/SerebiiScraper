@@ -39,6 +39,7 @@ export function generateGameSQL(data:GameData):string {
             id TEXT PRIMARY KEY,
             name TEXT,
             sprite TEXT,
+            region TEXT,
             generation INTEGER,
             modifiers TEXT
         );`.replaceAll(/\s+/g, " ")
@@ -51,6 +52,7 @@ export function generateGameSQL(data:GameData):string {
             ${toSQLString(id)},
             ${toSQLString(game.name)},
             ${stringifyForSQL(game.sprite)},
+            ${toSQLString(game.region)},
             ${game.generation},
             ${stringifyForSQL(game.modifiers)}
         );`.replaceAll(/\s+/g, " "));
