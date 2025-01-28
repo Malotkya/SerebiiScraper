@@ -55,12 +55,12 @@ export const onRequestGet: PagesFunction<Env> = async(context) => {
     if(changes[gen] === undefined)
         return new Response(`'${record["name"]}' does not exist in generation ${gen}!`, {status: 404, headers});
 
-    const name     = record["name"];
-    const number   = record["number"];
-    const versions = JSON.parse(record["versions"]);
-    const types    = getUpdate(changes, gen, "types")      || JSON.parse(record["types"]);
-    const abilities = getUpdate(changes, gen, "abilities") || JSON.parse(record["abilities"]);  //TODO: Fix Error Here
-    const moves     = getUpdate(changes, gen, "moves")     || JSON.parse(record["moves"]);
+    const name      = record["name"];
+    const number    = record["number"];
+    const versions  = getUpdate(changes, gen, "versions", true) || JSON.parse(record["versions"]);
+    const types     = getUpdate(changes, gen, "types")          || JSON.parse(record["types"]);
+    const abilities = getUpdate(changes, gen, "abilities")      || JSON.parse(record["abilities"]);
+    const moves     = getUpdate(changes, gen, "moves")          || JSON.parse(record["moves"]);
 
     return Response.json({name, number, versions, types, abilities, moves}, {headers});
 }
