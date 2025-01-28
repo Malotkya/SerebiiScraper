@@ -11,7 +11,7 @@ import { BASE_UTI, parseTable, parseList } from "./index.js";
 interface Pokemon {
     name: string,
     number: number,
-    versions: string[],
+    versions: Record<string, string>,
     types: Record<string, Type[]>,
     abilities: string[],
     moves: string[]
@@ -265,13 +265,11 @@ export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<stri
             const number  = getNumber(rawData.get("No.") || rawData.find("No.")?.at(1));
             
             const moves   = getMoves(moveData);
-            const verionsMap = getVersion(spriteData);
+            const versions = getVersion(spriteData);
             const abilitiesMap = getOrFindAbilities(rawData.find("Ability") || rawData.find("Abilities"), tables);
             
-            const versions = Object.values(verionsMap)
             const abilities = Object.keys(abilitiesMap);
-
-            const types   = getAllVersionTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!), verionsMap);
+            const types   = getAllVersionTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!), versions);
 
             return [{name, number, versions, types, abilities, moves}, abilitiesMap];
         

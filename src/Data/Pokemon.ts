@@ -16,12 +16,14 @@ interface PokemonData {
     name:string,
     number: number,
     types: Record<string, Type[]>,
+    versions: Record<string, string>,
     abilities: string[],
     moves: string[],
     changes: Record<number, {
         abilities?: string[],
         moves?: string[],
         types?: Record<string, Type[]>,
+        versions?: Record<string, string>
     }>
 }
 export default PokemonData;
@@ -81,6 +83,11 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
         if(!recordEqual(record.types, data.types)){
             record.changes[last].types = record.types;
             record.types = data.types;
+        }
+
+        if(!recordEqual(record.versions, data.versions)){
+            record.changes[last].versions = record.versions;
+            record.versions = data.versions;
         }
     }
 }
@@ -153,9 +160,9 @@ export async function fetchAllPokemonData():Promise<[PokemonData[], Record<strin
     const AllPokemon:PokemonData[] = [];
     const AllAbilities:Record<string, Item> = {};
 
-    console.log("");
-
     const list = await fetchNationalDex();
+    let gen:number = 1;
+    console.log(`Downloading Generation 1:\n`);
     for(let i=0; i<list.length; i++){
         process.stdout.write(`\u001b[${0}A`);
 
@@ -170,9 +177,18 @@ export async function fetchAllPokemonData():Promise<[PokemonData[], Record<strin
         } catch (e:any){
             console.error(`${list[i]}: ${e.message || e}`)
         }
+
+        const genTest = getGenerationByNumber(i);
+        if(genTest > gen) {
+            console.log(`${i-1}      \nDownloading Generation ${genTest}:`);
+            gen = genTest;
+        }
         
-        console.log(`${Math.ceil((i / list.length) * 100)}%`);
+        console.log(`${i} - ${Math.round((i / list.length) * 100)}%`);
     }
+
+    process.stdout.write(`\u001b[${0}A`);
+    console.log(`${list.length-1}      `)
 
     return [AllPokemon, AllAbilities];
 }
@@ -259,6 +275,7 @@ export function generatePokemonSQL(data:PokemonData[]):string {
             simple TEXT,
             name TEXT,
             types TEXT,
+            versions TEXT,
             abilities TEXT,
             moves TEXT,
             changes TEXT
@@ -271,6 +288,7 @@ export function generatePokemonSQL(data:PokemonData[]):string {
             ${toSQLString(simplify(p.name))},
             ${toSQLString(p.name)},
             ${stringifyForSQL(p.types)},
+            ${stringifyForSQL(p.versions)},
             ${stringifyForSQL(p.abilities)},
             ${stringifyForSQL(p.moves)},
             ${stringifyForSQL(p.changes)}
