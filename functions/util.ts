@@ -36,9 +36,13 @@ export function simplify(value:string):string {
  * returns undefiend if the value is determined to be empty.
  * 
  * @param {any} value 
+ * @param {boolean} hard false = "Empty If Object Empty"<br> true = "Empty if undefined"
  * @returns {any|undefined}
  */
-function emptyWrapper<T extends unknown>(value:T):T|undefined {
+function emptyWrapper<T extends unknown>(value:T, hard: boolean):T|undefined {
+    if(hard)
+        return value;
+
     switch(typeof value){
         case "object":
             if(Array.isArray(value)){
@@ -108,11 +112,11 @@ function getMax(value:Record<number, any>):number {
  * @param {string} name 
  * @returns {any}
  */
-export function getUpdate<T, K extends keyof T>(changes:Record<number, T>, current:number, name:K):T[K]|undefined {
+export function getUpdate<T, K extends keyof T>(changes:Record<number, T>, current:number, name:K, hardEmpty:boolean = false):T[K]|undefined {
     if(current < 0)
         return undefined;
 
-    const value = getUpdate(changes, getNext(changes, current), name)
+    const value = getUpdate(changes, getNext(changes, current), name, hardEmpty);
 
-    return emptyWrapper(changes[current][name]) || value;
+    return emptyWrapper(changes[current][name], hardEmpty) || value;
 }
