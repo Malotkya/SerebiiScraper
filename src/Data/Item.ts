@@ -13,7 +13,6 @@ interface Item {
 export default Item;
 
 export async function verifiedItemData():Promise<Item[]> {
-    console.log("\n");
     const data = {...(await fetchItemDataList()), ...missingItems()};
     const names = Object.keys(data);
     
