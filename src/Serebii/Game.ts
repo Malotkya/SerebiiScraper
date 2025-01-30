@@ -303,7 +303,7 @@ export const BrilliantDiamond:Game = {
     sprite: GEN_EIGHT_SPRITE,
     generation: 8,
     region: "Sinnoh",
-    modifiers: GEN_EIGHT,
+    modifiers: GEN_SEVEN,
     pokedex: BRILLIANT_SHINING_POKEDEX
 }
 export const ShiningPearl:Game = {
@@ -311,7 +311,7 @@ export const ShiningPearl:Game = {
     sprite: GEN_EIGHT_SPRITE,
     generation: 8,
     region: "Sinnoh",
-    modifiers: GEN_EIGHT,
+    modifiers: GEN_SEVEN,
     pokedex: BRILLIANT_SHINING_POKEDEX
 }
 export const LegendsArceus:Game = {
