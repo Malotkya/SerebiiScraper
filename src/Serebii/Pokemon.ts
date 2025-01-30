@@ -215,6 +215,22 @@ function findSprites(list:NodeListOf<Element>):string|undefined {
     return undefined;
 }
 
+/** Find Evoloutions
+ * 
+ */
+function findEvolutions(list:NodeListOf<HTMLAnchorElement>, uri:string):number[] {
+    const regex = new RegExp(uri.replaceAll(/\d+/g, "(\\d+)"));
+    const output:Set<number> = new Set();
+
+    for(const a of list){
+        const match = a.href.match(regex);
+        if(match)
+            output.add(Number(match[1]));
+    }
+
+    return Array.from(output).sort();
+}
+
 /** Fetch Pokemon Available Generations
  * 
  * @param {string} uri 
@@ -240,9 +256,10 @@ export async function fetchPokemonGenerations(uri:string):Promise<string[]> {
  * @param {string} uri 
  * @returns {Promise<[Pokemon, Record<string, string>]>}
  */
-export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<string, string>]> {
+export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<string, string>, number[]]> {
     const {document} = await fetchDom(BASE_UTI+uri);
     const tables = document.querySelectorAll("table");
+    const links  = document.querySelectorAll("a");
     const moveData = findMoveLists(tables);
     const spriteData = findSprites(tables);
 
@@ -269,9 +286,10 @@ export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<stri
             const abilitiesMap = getOrFindAbilities(rawData.find("Ability") || rawData.find("Abilities"), tables);
             
             const abilities = Object.keys(abilitiesMap);
-            const types   = getAllVersionTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!), versions);
+            const types = getAllVersionTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!), versions);
+            const evos = findEvolutions(links, uri).filter(n=>n>0 && n !== number);
 
-            return [{name, number, versions, types, abilities, moves}, abilitiesMap];
+            return [{name, number, versions, types, abilities, moves}, abilitiesMap, evos];
         
         } catch (e){
             //Throw any error that's not invalid table.
