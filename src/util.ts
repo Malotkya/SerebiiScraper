@@ -382,3 +382,13 @@ export function toSQLString(value:string):string {
         .replaceAll("'", "''")
     }'`;
 }
+
+/** Join Lists
+ * 
+ * @param {any[]} a 
+ * @param {any[]} b 
+ * @returns {any[]}
+ */
+export function joinLists<T>(a:T[], b:T[] = []):T[] {
+    return Array.from(new Set<T>(a.concat(b)))
+}
