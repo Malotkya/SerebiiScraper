@@ -8,7 +8,7 @@ import { fetchNationalDex } from "../Serebii/Pokedex.js";
 import Pokemon, { fetchPokemonGenerations, fetchPokemonData } from "../Serebii/Pokemon.js";
 import { getGenerationByNumber, getGenerationByUri, POKEDEX_GENERATION_LIST } from "../Serebii/Generation.js";
 import Type from "../Serebii/Type.js";
-import { getLastGen, arrayEqual, recordEqual, simplify, FileCache, toSQLString, stringifyForSQL, betterJsonStringify } from "../util.js"
+import { getLastGen, arrayEqual, recordEqual, simplify, FileCache, toSQLString, stringifyForSQL, betterJsonStringify, joinLists } from "../util.js"
 import AttackData from "./Attack.js";
 import Item from "./Item.js";
 
@@ -92,6 +92,22 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
     }
 }
 
+/** Append Additional Data
+ * 
+ * @param {PokemonData} current 
+ * @param {PokemonData} old 
+ */
+function append(current:PokemonData, old:PokemonData):void {
+    current.moves = joinLists(current.moves, old.moves).sort();
+    for(const gen in current.changes) {
+        if(current.changes[gen].moves) {
+            current.changes[gen].moves =
+                joinLists(current.changes[gen].moves, old.changes[gen]?.moves)
+                    .sort();
+        }
+    }
+}
+
 function updateAbility(current:Item|undefined, name:string, value:string):Item {
     name = name.charAt(0).toLocaleUpperCase() + name.substring(1)
         .replaceAll(/( ?)([A-Z])/g, " $2")
@@ -114,7 +130,7 @@ function updateAbility(current:Item|undefined, name:string, value:string):Item {
  * @param {string} name 
  * @returns {Promise<[PokemonData, Record<string, string>]>}
  */
-export async function fetchSinglePokemonData(name:string, number:number):Promise<[PokemonData, Record<string, string>]> {
+export async function fetchSinglePokemonData(name:string, number:number):Promise<[PokemonData, Record<string, string>, number[]]> {
     const cache = new FileCache("cache/pokemon");
 
     if(cache.has(name)) {
@@ -129,25 +145,29 @@ export async function fetchSinglePokemonData(name:string, number:number):Promise
     );
     
     //Start with first
-    const [data, abilities] = await fetchPokemonData(queue.pop()!);
+    const [data, abilities, evos] = await fetchPokemonData(queue.pop()!);
     const pokemon = createNew(data, gen);
+    const evolutions = new Set(evos);
 
     while(queue.length > 0){
         const uri = queue.pop()!;
         const gen = getGenerationByUri(uri);
-        const [p, a] = await fetchPokemonData(uri);
+        const [p, a, evo] = await fetchPokemonData(uri);
         update(pokemon, p, gen);
 
         for(const name in a){
             abilities[name] = a[name];
         }
+
+        for(const e of evo)
+            evolutions.add(e);
     }
 
-    
+    const evoData = Array.from(evolutions).map(n=>n-1);
     //Save Data
-    cache.set(name, betterJsonStringify([pokemon, abilities]));
+    cache.set(name, betterJsonStringify([pokemon, abilities, evoData]));
 
-    return [pokemon, abilities];
+    return [pokemon, abilities, evoData];
 }
 
 /** Fetch All Pokemon Data
@@ -167,7 +187,13 @@ export async function fetchAllPokemonData():Promise<[PokemonData[], Record<strin
         process.stdout.write(`\u001b[${0}A`);
 
         try {
-            const [pokemon, abilities] = await fetchSinglePokemonData(list[i], i+1);
+            const [pokemon, abilities, evolutions] = await fetchSinglePokemonData(list[i], i+1);
+
+            for(const number of evolutions){
+                if(number < AllPokemon.length){
+                    append(pokemon, AllPokemon[number]);
+                }
+            }
 
             AllPokemon.push(pokemon);
             for(const name in abilities){
