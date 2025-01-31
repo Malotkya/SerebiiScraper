@@ -19,11 +19,13 @@ interface PokemonData {
     versions: Record<string, string>,
     abilities: string[],
     moves: string[],
+    gendered: boolean,
     changes: Record<number, {
         abilities?: string[],
         moves?: string[],
         types?: Record<string, Type[]>,
-        versions?: Record<string, string>
+        versions?: Record<string, string>,
+        gendered?: boolean
     }>
 }
 export default PokemonData;
@@ -58,37 +60,31 @@ function update(record:PokemonData, data:Pokemon, generation:number):void {
     data.abilities = data.abilities.map(normalizeString);
     data.moves = data.moves.map(normalizeString);
 
-    //Combine from Same Generation
-    if(last === generation){
-        const moves = new Set(record.moves.concat(data.moves));
-        const abilities = new Set(record.abilities.concat(data.abilities));
+    record.changes[generation] = {};
 
-        record.moves = Array.from(moves);
-        record.abilities = Array.from(abilities);
+    if(!record.gendered && data.gendered){
+        record.changes[last].gendered = false;
+        record.gendered = true;
+    }
 
-    //Create Next Generation
-    } else {
-        record.changes[generation] = {};
+    if(!arrayEqual(record.moves, data.moves)){
+        record.changes[last].moves = record.moves;
+        record.moves = data.moves;
+    }
 
-        if(!arrayEqual(record.moves, data.moves)){
-            record.changes[last].moves = record.moves;
-            record.moves = data.moves;
-        }
+    if(!arrayEqual(record.abilities, data.abilities)){
+        record.changes[last].abilities = record.abilities;
+        record.abilities = data.abilities;
+    }
 
-        if(!arrayEqual(record.abilities, data.abilities)){
-            record.changes[last].abilities = record.abilities;
-            record.abilities = data.abilities;
-        }
+    if(!recordEqual(record.types, data.types)){
+        record.changes[last].types = record.types;
+        record.types = data.types;
+    }
 
-        if(!recordEqual(record.types, data.types)){
-            record.changes[last].types = record.types;
-            record.types = data.types;
-        }
-
-        if(!recordEqual(record.versions, data.versions)){
-            record.changes[last].versions = record.versions;
-            record.versions = data.versions;
-        }
+    if(!recordEqual(record.versions, data.versions)){
+        record.changes[last].versions = record.versions;
+        record.versions = data.versions;
     }
 }
 
@@ -214,7 +210,7 @@ export async function fetchAllPokemonData():Promise<[PokemonData[], Record<strin
     }
 
     process.stdout.write(`\u001b[${0}A`);
-    console.log(`${list.length-1}      `)
+    console.log(`${list.length-1}       `);
 
     return [AllPokemon, AllAbilities];
 }

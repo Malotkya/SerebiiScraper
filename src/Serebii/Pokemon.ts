@@ -7,6 +7,7 @@
 import { RawData, fetchDom, removeHTML } from "../util.js";
 import Type, {getAllVersionTypes} from "./Type.js"
 import { BASE_UTI, parseTable, parseList } from "./index.js";
+import {getAllVersions, normalizeVersionAndTypes} from "./Version.js";
 
 interface Pokemon {
     name: string,
@@ -14,7 +15,8 @@ interface Pokemon {
     versions: Record<string, string>,
     types: Record<string, Type[]>,
     abilities: string[],
-    moves: string[]
+    moves: string[],
+    gendered: boolean
 }
 export default Pokemon;
 
@@ -48,24 +50,7 @@ function getNumber(value:string|undefined):number {
     return Number(match[0]);
 }
 
-/** Get Version
- * 
- * @param {string} value 
- * @returns {string}
- */
-function getVersion(value:string|undefined):Record<string, string> {
-    if(value === undefined)
-        return {};
 
-    const match = value.matchAll(/<a.*?title="(.*?)" .*?data-key="\d+(.*?)".*?>/gi);
-    const output:Record<string, string> = {};
-    for(const group of match){
-        if(group[1].toLocaleLowerCase().includes("form") && group[2] !== "")
-            output[group[1].trim().split(" ")[0]] = group[2].trim()
-    }
-
-    return output;
-}
 
 function getOrFindAbilities(value:[string, string]|undefined, tables:NodeListOf<HTMLTableElement>):Record<string, string> {
     if(value === undefined)
@@ -202,7 +187,7 @@ function findSprites(list:NodeListOf<Element>):string|undefined {
                 throw null;
             }
 
-            const value = data.get("Picture");
+            const value = data.get("Picture") || data.get("Images");
 
             if(value)
                 return value;
@@ -282,14 +267,16 @@ export async function fetchPokemonData(uri:string):Promise<[Pokemon, Record<stri
             const number  = getNumber(rawData.get("No.") || rawData.find("No.")?.at(1));
             
             const moves   = getMoves(moveData);
-            const versions = getVersion(spriteData);
             const abilitiesMap = getOrFindAbilities(rawData.find("Ability") || rawData.find("Abilities"), tables);
             
             const abilities = Object.keys(abilitiesMap);
-            const types = getAllVersionTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!), versions);
+            const types = getAllVersionTypes(rawData.get("Type") || (rawData.get("Type1")! + rawData.get("Type2")!));
             const evos = findEvolutions(links, uri).filter(n=>n>0 && n !== number);
 
-            return [{name, number, versions, types, abilities, moves}, abilitiesMap, evos];
+            const versionsData = getAllVersions(spriteData, name);
+            const [versions, gendered] = normalizeVersionAndTypes(versionsData, types);
+
+            return [{name, number, versions, types, abilities, moves, gendered}, abilitiesMap, evos];
         
         } catch (e){
             //Throw any error that's not invalid table.
